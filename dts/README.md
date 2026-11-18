@@ -77,8 +77,10 @@ It selects the DTBO partition matching `ro.boot.slot_suffix`, refuses to
 guess when the active slot cannot be identified, and reads the partition into
 a file under the output directory. It never writes to a block device. Also run
 `scripts/collect-spes-device-info.sh` to capture the live FDT and partition
-metadata. Upload the resulting DTBO image and FDT here for overlay selection,
-GPIO, regulator, panel and memory-map reconciliation.
+metadata. Review the raw FDT for serial/MAC values before sharing; the text inventory
+redacts serial/MAC values from the kernel command line, but the binary FDT is
+copied unchanged. Upload the reviewed DTBO image and FDT here for overlay
+selection, GPIO, regulator, panel and memory-map reconciliation.
 
 
 ## Why the touchscreen candidate is disabled
