@@ -144,3 +144,21 @@ Do not copy the vendor reserved-memory map into a Mainline DTS. Its fixed
 addresses and carveouts depend on the exact firmware and RAM variant. First
 obtain the target phone's live FDT and boot firmware metadata; then identify
 the minimum required carveouts and translate only supported hardware nodes.
+
+
+## Read-only DTBO inspection helper
+
+Added `scripts/inspect_android_dt_table.py` to parse the Android DT table
+header and entry metadata, validate embedded FDT headers, and emit JSON.
+It is deliberately read-only and does not modify or flash an image.
+
+When a genuine binary `dtbo.img` is available locally, run:
+
+```sh
+python3 scripts/inspect_android_dt_table.py /path/to/dtbo.img
+```
+
+The report includes each entry's index, byte offset and size, board ID,
+revision, custom fields, and FDT header metadata. These numeric fields are
+not sufficient by themselves to identify the active overlay; correlate them
+with the exact firmware, bootloader selection rules, and device variant.
