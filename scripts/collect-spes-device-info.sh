@@ -53,7 +53,7 @@ prop() {
   fi
 
   echo
-  echo "=== Kernel command line (identifiers redacted) ==="
+  echo "=== Kernel command line (serial/MAC values redacted) ==="
   if [ -r /proc/cmdline ]; then
     sed -E 's/(androidboot\.(serialno|wifimacaddr|btmacaddr))=[^ ]*/\1=<redacted>/g' /proc/cmdline
   fi
@@ -71,6 +71,7 @@ prop() {
 if [ -r /sys/firmware/fdt ]; then
   cp /sys/firmware/fdt "$OUT/live-device-tree.dtb"
   echo "Copied live FDT from /sys/firmware/fdt" >> "$OUT/device-info.txt"
+  echo "Review live-device-tree.dtb for serial/MAC identifiers before sharing." >> "$OUT/device-info.txt"
 elif [ -r /proc/device-tree/model ]; then
   echo "Live FDT binary unavailable; model/compatible text was recorded only." >> "$OUT/device-info.txt"
 fi
