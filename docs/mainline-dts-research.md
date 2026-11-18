@@ -166,3 +166,12 @@ research. The optional `scripts/collect-spes-device-info.sh` is a fallback
 for later validation, not a blocker for ongoing source analysis. Do not mark
 the board DTS, boot chain, or physical boot as verified based only on public
 downstream sources.
+
+
+## Verified SM6225 Mainline implementation reference
+
+A further inspection of `Sype0/pmos-tapas` confirmed that its `scripts/build.sh` pins kernel archive commit `b8463e4b9111517f89da970d1e1145b851ce8d48`, builds for ARM64 with LLVM, and uses the same base-config Git blob already present in this repository (`d234c5df781cf688b2da9b83f6b63404c9d1600e`). Its DTS set is four tapas variants only; it does not provide a spes DTS. The reference's USB CDC ACM initramfs, early framebuffer console, and ramoops/pstore are useful bring-up design ideas, but each requires hardware/resource validation on spes. The tapas boot shim and v4 boot flow are explicitly not transferable to spes.
+
+Implementation decisions and phased work are recorded in [SM6225 Mainline porting plan](sm6225-mainline-porting-plan.md).
+
+Reference source: https://github.com/Sype0/pmos-tapas
