@@ -79,3 +79,21 @@ a file under the output directory. It never writes to a block device. Also run
 `scripts/collect-spes-device-info.sh` to capture the live FDT and partition
 metadata. Upload the resulting DTBO image and FDT here for overlay selection,
 GPIO, regulator, panel and memory-map reconciliation.
+
+
+## Why the touchscreen candidate is disabled
+
+The pinned Mainline reference driver source maps `focaltech,ft5452` to a
+five-contact device and the binding accepts `vcc-supply` and `iovcc-supply`.
+The Android vendor driver instead uses the non-upstream `focaltech,fts`
+compatible and a vendor `focaltech,max-touch-number` property; that node is
+not copied. The candidate maps GPIO98 AVDD to a fixed enable regulator and
+PM6125 L9 (1.8-2.0 V) to `iovcc-supply`. The candidate uses GPIO80 falling-edge
+IRQ because it is supported by the Tapas reference and independent Spes test,
+but one downstream Spes DT node says GPIO89. It therefore remains disabled
+until the handset's live DTB/DTBO confirms the interrupt line and pinmux.
+
+Reference driver/binding inspected in the SM6225 Mainline source mirror at
+commit `467185042fc7a8e2da4589767dd0d7b8ddc422e8`:
+- https://github.com/external-mirrors/sm6225-mainline-linux/blob/467185042fc7a8e2da4589767dd0d7b8ddc422e8/drivers/input/touchscreen/edt-ft5x06.c
+- https://github.com/external-mirrors/sm6225-mainline-linux/blob/467185042fc7a8e2da4589767dd0d7b8ddc422e8/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
