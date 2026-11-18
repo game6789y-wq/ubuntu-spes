@@ -174,3 +174,15 @@ This makes a non-persistent v3 boot test worth investigating before any
 installation. It is not proof that the target phone's current bootloader,
 slot, vendor_boot DTB hand-off or unlock state is identical. Do not flash or
 write partitions based on that report.
+
+
+## Kernel-branch DTS availability gap
+
+The related SM6225 7.2.1 resource inventory lists `sm6225-xiaomi-spesn.dts`
+and `sm6225-xiaomi-tapas.dts`, while the older v6.19-rc8 mirror contains
+`sm6225-xiaomi-spes.dts`. This repository carries the non-NFC `spes`
+skeleton forward to the pinned 7.2.1 kernel rather than substituting the
+NFC `spesn` board. The candidate must compile against the pinned kernel and
+its inherited SoC/PMIC DTSIs before any runtime work.
+Reference inventory:
+https://github.com/xushengfeng/redmi_pad_se_xun_linux/blob/main/docs/RESOURCES.md
