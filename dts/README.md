@@ -148,7 +148,9 @@ against the non-NFC Spes source and the target phone's live FDT/DTBO.
 
 The related SM6225 Linux bring-up project for Redmi Pad SE (xun) lists a
 U-Boot 2026.07 port with `xiaomi_spes_defconfig`, EFI loader, fastboot, UFS and
-USB support as an alternative boot path:
+USB support as an alternative boot path. The reported source is
+https://gitlab.postmarketos.org/sm6225-mainline/u-boot/-/tree/sm6225
+and the project reference is
 https://github.com/xushengfeng/redmi_pad_se_xun_linux/blob/main/docs/RESOURCES.md
 
 This is a project-reported lead, not a verified U-Boot build or boot test on
