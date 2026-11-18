@@ -82,51 +82,27 @@ jobs:
             -o "$TAPAS_DTS"
           test "$(git hash-object "$TAPAS_DTS")" = "$TAPAS_DTS_BLOB"
 
-          # Reproduce the pinned reference project's kernel patches before
-          # compiling its DTS. These patches are not copied into the spes tree.
-          for spec in \
-            "0001-simpledrm-refresh-rate.patch:4a1b2746da7d53f5f8841723db6277366a507f5e" \
-            "0002-gcc-sm6225-gpll10-11-lucid.patch:d79030efbcc9557e06c13116e633b5a1adce1e30" \
-            "0003-wl2866d-reset-lenient-id.patch:b194dc1d2c238e0c7d9cb00057dcf26b9cd4a17a" \
-            "0004-hci_qca-wcn3950-power-off.patch:a38526a76dc783c80ec5b19af465fa5a149e98ea" \
-            "0005-simpledrm-scanout-sync.patch:fecc836d357acdbc4ef404f6d8a6771822038c72" \
-            "0006-s5kjn1-no-50mp-mode.patch:6a241aec328bf004397fe298294002d3f9f72a0a"; do
-            name="${spec%%:*}"
-            expected="${spec##*:}"
+          # Reproduce the pinned reference project's patches for this DTS compile.
+          while read -r name expected; do
+            [ -n "$name" ] || continue
             patch_file="$RUNNER_TEMP/$name"
             curl --fail --location --retry 3 \
               "https://raw.githubusercontent.com/Sype0/pmos-tapas/$TAPAS_REF_COMMIT/patches/$name" \
               -o "$patch_file"
             test "$(git hash-object "$patch_file")" = "$expected"
             patch -p1 --forward < "$patch_file"
-          done
+          done <<'PATCHES'
+          0001-simpledrm-refresh-rate.patch 4a1b2746da7d53f5f8841723db6277366a507f5e
+          0002-gcc-sm6225-gpll10-11-lucid.patch d79030efbcc9557e06c13116e633b5a1adce1e30
+          0003-wl2866d-reset-lenient-id.patch b194dc1d2c238e0c7d9cb00057dcf26b9cd4a17a
+          0004-hci_qca-wcn3950-power-off.patch a38526a76dc783c80ec5b19af465fa5a149e98ea
+          0005-simpledrm-scanout-sync.patch fecc836d357acdbc4ef404f6d8a6771822038c72
+          0006-s5kjn1-no-50mp-mode.patch 6a241aec328bf004397fe298294002d3f9f72a0a
+          PATCHES
 
-          grep -q '^CONFIG_ARCH_QCOM=y        if: always()
-        run: |
-          mkdir -p dist
-          if [ -f "$RUNNER_TEMP/kernel-out/arch/arm64/boot/Image" ]; then
-            cp "$RUNNER_TEMP/kernel-out/arch/arm64/boot/Image" dist/
-          fi
-          if [ -f "$RUNNER_TEMP/kernel-out/.config" ]; then
-            cp "$RUNNER_TEMP/kernel-out/.config" dist/kernel.config
-          fi
-          if [ -f "$RUNNER_TEMP/kernel-out/include/config/kernel.release" ]; then
-            cp "$RUNNER_TEMP/kernel-out/include/config/kernel.release" dist/kernel.release
-          fi
-          echo "$KERNEL_COMMIT" > dist/source-commit.txt
-          du -h dist/* 2>/dev/null || true
-
-      - name: Upload smoke-build artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: spes-mainline-kernel-smoke-${{ github.run_number }}
-          path: dist/
-          if-no-files-found: warn
-          retention-days: 7
- "$RUNNER_TEMP/kernel-out/.config"
+          grep -q '^CONFIG_ARCH_QCOM=y$' "$RUNNER_TEMP/kernel-out/.config"
           if ! grep -qF 'sm6225-xiaomi-tapas.dtb' "$DTS_DIR/Makefile"; then
-            printf '\ndtb-$(CONFIG_ARCH_QCOM) += sm6225-xiaomi-tapas.dtb\n' >> "$DTS_DIR/Makefile"
+            echo 'dtb-$(CONFIG_ARCH_QCOM) += sm6225-xiaomi-tapas.dtb' >> "$DTS_DIR/Makefile"
           fi
           make -j"$(nproc)" ARCH=arm64 LLVM=1 \
             O="$RUNNER_TEMP/kernel-out" qcom/sm6225-xiaomi-tapas.dtb
