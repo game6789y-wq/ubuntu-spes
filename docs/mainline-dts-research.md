@@ -175,3 +175,8 @@ A further inspection of `Sype0/pmos-tapas` confirmed that its `scripts/build.sh`
 Implementation decisions and phased work are recorded in [SM6225 Mainline porting plan](sm6225-mainline-porting-plan.md).
 
 Reference source: https://github.com/Sype0/pmos-tapas
+
+
+## Board-level hardware reference matrix
+
+A direct inspection of the public downstream `spes.dtsi` and the tapas Mainline reference DTS exposed a significant charger-topology mismatch: the downstream spes file declares Max77729 at I2C 0x66 and SC8551 at 0x65, while the tapas reference declares BQ25890 at 0x6a and SM5602 at 0x71. Do not copy the tapas charging nodes or policy into spes. The spes source also declares candidate GPIOs 105, 84 and 88 for Max77729 interrupt, SC8551 interrupt and SD-card detect respectively; these remain unverified against the live target FDT. Full comparison and next steps are recorded in [spes hardware reference matrix](spes-hardware-reference-matrix.md).
