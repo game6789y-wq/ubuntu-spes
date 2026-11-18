@@ -105,3 +105,42 @@ Inspected the corresponding downstream kernel source at commit
    metadata to establish the actual board-specific nodes and overlay selection.
 5. No device-specific Mainline DTS should be claimed complete based on this
    Android vendor source alone.
+
+
+## Follow-up: map the downstream Khaje SoC include graph
+
+Inspected `arch/arm64/boot/dts/vendor/qcom/khaje.dtsi` from
+`knyplaygrnd/android_kernel_xiaomi_spes` at commit
+`4f39e412aa655767635da99903a6ffd42ca38872`.
+
+- Git blob: `29c39a2844583195f0e79ee2e4a2a3f8e2aeba04`
+- File size: 103,679 text bytes.
+- The file contains 29 include directives, including Khaje-specific clock,
+  regulator, pinctrl, SDE/display, USB, and camera files, plus Bengal
+  bus, GPU, audio, thermal, and PMIC definitions.
+- It defines 155 labelled nodes in the parsed source, including eight CPU
+  cores and a large `reserved-memory` section.
+- The SoC DTSI's root memory node is a placeholder with a zero-sized
+  `reg`; it is not a usable physical RAM map for the handset.
+- It includes vendor Android firmware / memory-sharing and Qualcomm-specific
+  services. Those definitions must be checked against Mainline bindings and
+  actual firmware behavior individually.
+- A repository code search for `model = "Redmi Note 11"`,
+  `xiaomi,spes`, and `spes.dts` did not find a board DTS in this source
+  index. This is limited search evidence, not proof that no board data exists.
+
+### DTBO binary inspection limitation
+
+The GitHub file endpoint returned the `dtbo.img` blob SHA
+`064617492f5a4f84c13de52aa6f8557f786064a0`, but did not return decodable
+binary bytes through the text-file interface. Fetching the blob as UTF-8
+failed on non-UTF-8 bytes. Therefore no DT table header, overlay count,
+board IDs, or overlay contents are claimed as inspected. The file must be
+downloaded as a binary artifact or extracted from the handset before analysis.
+
+### Porting consequence
+
+Do not copy the vendor reserved-memory map into a Mainline DTS. Its fixed
+addresses and carveouts depend on the exact firmware and RAM variant. First
+obtain the target phone's live FDT and boot firmware metadata; then identify
+the minimum required carveouts and translate only supported hardware nodes.
