@@ -155,3 +155,13 @@ Additional same-model hardware references (research leads; not a substitute for
 the target phone's live data):
 - https://github.com/AdyaGMD/ios-spes/blob/bdc2682efd6398f61185eab398361b066bf93794/docs/SPES-TOUCH-POWER.md
 - https://github.com/AdyaGMD/ios-spes/blob/bdc2682efd6398f61185eab398361b066bf93794/docs/SPES-UPSTREAM-20261021.md
+
+
+## Non-persistent boot-path lead
+
+The independent same-model `SPES-UPSTREAM-20261021` report describes one
+successful boot using an Android boot-image-v3 payload via `fastboot boot`.
+This makes a non-persistent v3 boot test worth investigating before any
+installation. It is not proof that the target phone's current bootloader,
+slot, vendor_boot DTB hand-off or unlock state is identical. Do not flash or
+write partitions based on that report.
