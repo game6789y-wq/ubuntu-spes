@@ -91,8 +91,10 @@ selection, GPIO, regulator, panel and memory-map reconciliation.
 
 ## Why the touchscreen candidate is disabled
 
-The pinned Mainline reference driver source maps `focaltech,ft5452` to a
-five-contact device and the binding accepts `vcc-supply` and `iovcc-supply`.
+The Mainline driver source in the external SM6225 source mirror maps
+`focaltech,ft5452` to a five-contact device and its binding accepts
+`vcc-supply` and `iovcc-supply`. The next CI change will verify that the
+pinned kernel archive contains the same compatible and binding.
 The Android vendor driver instead uses the non-upstream `focaltech,fts`
 compatible and a vendor `focaltech,max-touch-number` property; that node is
 not copied. The candidate maps GPIO98 AVDD to a fixed enable regulator and
