@@ -7,15 +7,18 @@
  * commit 467185042fc7a8e2da4589767dd0d7b8ddc422e8
  * (original DTS blob 4a2b84c19250adc18c79b67df38d7d6bb332e6fb).
  *
- * This is a compile-tested candidate skeleton, not a boot-tested board DTS.
- * MSM/board IDs, framebuffer address and ramoops range must be reconciled
- * with the exact handset firmware/live FDT before any boot attempt.
+ * This is a compile candidate, not a boot-tested board DTS. MSM/board IDs,
+ * framebuffer, ramoops, PMIC and touchscreen wiring must be reconciled with
+ * the exact handset firmware/live FDT before any boot attempt.
  *
  * Copyright (c) 2026, Rayan Marzouk <rayanmarzouk743@gmail.com>
  */
 
 /dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
 #include "sm6225.dtsi"
+#include "pm6125.dtsi"
 
 / {
 	model = "Xiaomi Redmi Note 11";
@@ -36,7 +39,7 @@
 
 		/*
 		 * Candidate bootloader framebuffer from same-model external
-		 * hardware evidence. Do not assume this is valid for every panel.
+		 * hardware evidence. Verify address/format against live FDT.
 		 */
 		framebuffer0: framebuffer@5c000000 {
 			compatible = "simple-framebuffer";
@@ -66,16 +69,59 @@
 			max-reason = <0x04>;
 		};
 	};
+
+	/*
+	 * Stock Spes touch AVDD is enabled by TLMM GPIO98. Represent it as a
+	 * fixed regulator so the upstream edt-ft5x06 driver can sequence it.
+	 * Rail voltage is intentionally unspecified: the public Spes sources
+	 * identify the enable GPIO but not its voltage.
+	 */
+	touch_avdd: regulator-touch-avdd {
+		compatible = "regulator-fixed";
+		regulator-name = "touch-avdd";
+		gpio = <&tlmm 98 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
+
+/* PM6125 L9 is the 1.8 V touchscreen I/O rail in the stock Spes FDT. */
+&rpm_requests {
+	regulators-0 {
+		compatible = "qcom,rpm-pm6125-regulators";
+
+		pm6125_l9: l9 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <2000000>;
+			regulator-always-on;
+		};
+	};
 };
 
 /*
  * QUPv3 SE2 is the stock Spes touchscreen I2C bus. The SM6225 Mainline
- * reference DTS pins this GENI I2C source clock to XO (19.2 MHz); without
- * it, the controller may fail to probe with an unsupported SE clock.
- * Keep the bus enabled, but do not add a client until the live FDT is checked.
+ * reference pins this GENI I2C source clock to XO (19.2 MHz). GPIO80 is
+ * supported by the Tapas reference and independent Spes hardware report;
+ * one downstream vendor interrupts property says GPIO89 instead.
  */
 &i2c2 {
 	assigned-clocks = <&gcc GCC_QUPV3_WRAP0_S2_CLK>;
 	assigned-clock-rates = <19200000>;
 	status = "okay";
+
+	/*
+	 * Upstream FocalTech FT5452 candidate. Kept disabled until the live
+	 * Spes DTB resolves the IRQ discrepancy and confirms power sequencing.
+	 */
+	touchscreen@38 {
+		compatible = "focaltech,ft5452";
+		reg = <0x38>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <80 IRQ_TYPE_EDGE_FALLING>;
+		reset-gpios = <&tlmm 86 GPIO_ACTIVE_LOW>;
+		vcc-supply = <&touch_avdd>;
+		iovcc-supply = <&pm6125_l9>;
+		touchscreen-size-x = <1080>;
+		touchscreen-size-y = <2400>;
+		status = "disabled";
+	};
 };
