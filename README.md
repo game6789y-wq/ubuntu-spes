@@ -11,15 +11,15 @@ The goal is to bring up a mainline Linux kernel first, then add device-specific 
 | Area | Status |
 |---|---|
 | Repository and CI scaffold | Added |
-| Generic ARM64 kernel smoke build | Passed (GitHub Actions run #4) |
-| Device-specific SM6225 kernel validation | Pending source/config inspection |
-| `spes` device tree validation | Not started |
+| Generic ARM64 kernel smoke build | Passed (historical run #4) |
+| SM6225 baseline-config kernel build | Added to CI; pending new run |
+| `spes` Mainline device tree validation | Pending; downstream vendor DTS inspected as reference only |
 | Boot chain / boot image format | Not verified |
 | Display, touch, USB, storage, Wi-Fi, audio | Not tested |
 | Ubuntu root filesystem | Not started |
 | Boot on physical device | Not tested |
 
-A successful CI build only proves that the selected kernel source compiles. It does **not** prove that the kernel can boot on the Redmi Note 11.
+A successful CI build only proves that the selected kernel source and configuration compile. It does **not** prove that the kernel can boot on the Redmi Note 11.
 
 ## Hardware target
 
@@ -37,7 +37,7 @@ Different regional variants and board revisions may require different device-tre
 
 ## Build
 
-The GitHub Actions workflow is a **kernel toolchain/source smoke test**. It builds a generic ARM64 kernel image from a pinned SM6225 mainline source snapshot. It does not yet produce a device-bootable image.
+The GitHub Actions workflow compiles the pinned SM6225 Mainline source using a pinned SM6225 postmarketOS baseline configuration. It does not yet compile a verified `spes` Mainline DTB or produce a device-bootable image.
 
 1. Open **Actions** in this repository.
 2. Select **Mainline kernel CI**.
@@ -55,12 +55,13 @@ The GitHub Actions workflow is a **kernel toolchain/source smoke test**. It buil
 ## Roadmap
 
 1. Validate the pinned mainline kernel source and ARM64 build toolchain in CI.
-2. Obtain and inspect the `spes`-specific kernel configuration and device-tree sources.
-3. Compare the upstream device tree with the stock `spes` DTB and hardware revisions.
-4. Add a minimal, reviewable `spes` DTS and build DTBs.
-5. Inspect the real boot chain and image format before creating any boot image.
-6. Bring up serial/USB and storage, then display and touch.
-7. Build an Ubuntu ARM64 root filesystem only after the kernel can boot reliably.
+2. Validate the pinned SM6225 baseline configuration and identify its exact originating pmaports revision.
+3. Obtain and inspect the `spes` Mainline device-tree sources.
+4. Compare any candidate Mainline device tree with the stock `spes` DTB and hardware revisions.
+5. Add a minimal, reviewable `spes` DTS and build DTBs.
+6. Inspect the real boot chain and image format before creating any boot image.
+7. Bring up serial/USB and storage, then display and touch.
+8. Build an Ubuntu ARM64 root filesystem only after the kernel can boot reliably.
 
 ## References
 
@@ -72,3 +73,6 @@ The GitHub Actions workflow is a **kernel toolchain/source smoke test**. It buil
 ## License
 
 No license has been selected yet. Until one is added, all rights are reserved by default.
+
+
+The current build uses the SM6225 baseline kernel configuration snapshot in `config/sm6225-base.config`. Its provenance and limitations are documented in [Mainline DTS research](docs/mainline-dts-research.md). A downstream `spes.dtsi` has been inspected for hardware clues, but no verified Mainline `spes` DTS has been added.
