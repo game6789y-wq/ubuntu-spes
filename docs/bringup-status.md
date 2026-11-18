@@ -12,7 +12,7 @@ This checklist is intentionally conservative. Mark an item complete only after a
 - [x] Inspect the downstream `spes.dtsi` / `khaje.dtsi` vendor reference; documented as non-portable source material in `mainline-dts-research.md`.
 - [x] Audit a public `spes/spesn` Android `BoardConfig.mk` (branch `sixteen-qpr2`); boot header v3, separate DTBO, and `khaje.dtb` build input recorded as Android build evidence only in `spes-boardconfig-audit.md`.
 - [x] Fetch and inspect the prebuilt `dtb/khaje.dtb` FDT header and trace its generic downstream `khaje.dts` / `khaje.dtsi` source; not a board-specific Mainline DTS.
-- [ ] Decode and inventory the prebuilt `dtbo.img` and identify each overlay.
+- [ ] Decode and inventory the prebuilt `dtbo.img` and identify each overlay (GitHub text endpoint exposed only the blob SHA, not binary bytes).
 - [ ] Obtain the exact live stock DTB/DTBO from the target handset using read-only methods.
 - [ ] Compare the mainline DTS with stock `spes` DTBs from the same hardware variant.
 - [x] Build the pinned Mainline source with the SM6225 baseline config (run #13 succeeded; artifact `spes-mainline-kernel-smoke-13`).
