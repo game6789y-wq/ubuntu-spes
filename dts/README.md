@@ -16,7 +16,10 @@ The public board DTS is only a small early-boot skeleton. It includes
 `sm6225.dtsi`, declares the board identity and XBL IDs, retains the bootloader
 framebuffer at 0x5c000000, and reserves 4 MiB for ramoops at 0x5d000000. The
 SoC DTSI contains a memory node whose size is expected to be filled by the
-bootloader, plus SoC-level reserved-memory entries.
+bootloader, plus SoC-level reserved-memory entries. Its XBL ID is 518 decimal
+(0x206), matching the value written as 0x206 in the related tapas DTS; both
+sources also use board ID 0x20022. The framebuffer dimensions/address agree
+with the independent same-model Spes hardware report for one firmware build.
 
 Our copy fixes the original spelling error `#adress-cells` to
 `#address-cells` and removes the postmarketOS-only `pmos.nosplash` bootarg.
@@ -33,6 +36,9 @@ The two clock/power keep-alive flags remain temporary bring-up flags.
 
 The independent same-model hardware report supports the framebuffer address
 and FocalTech FT5452 identification, but does not replace the target phone's
-own live FDT/DTBO. The next source-driven step is to compile this candidate
-against the repository's pinned SM6225 kernel, then add one subsystem at a
-time with binding checks and explicit evidence.
+own live FDT/DTBO. The original upstream skeleton was last updated in the
+referenced branch by commit `936aa708e5423d2d2ffba2ad5db7704d803782a0`, whose
+message adds temporary `clk_ignore_unused` and `pd_ignore_unused` boot flags.
+The next source-driven step is to compile this candidate against the repository's
+pinned SM6225 kernel, then add one subsystem at a time with binding checks and
+explicit evidence.
