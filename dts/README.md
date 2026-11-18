@@ -42,3 +42,14 @@ message adds temporary `clk_ignore_unused` and `pd_ignore_unused` boot flags.
 The next source-driven step is to compile this candidate against the repository's
 pinned SM6225 kernel, then add one subsystem at a time with binding checks and
 explicit evidence.
+
+
+## Existing kernel configuration support
+
+The pinned SM6225 base config already enables `CONFIG_DRM_SIMPLEDRM=y`,
+`CONFIG_TOUCHSCREEN_EDT_FT5X06=y`, `CONFIG_USB_GADGET=y`,
+`CONFIG_USB_DWC3=y`, and `CONFIG_USB_DWC3_DUAL_ROLE=y`. These are driver
+availability facts only; device-tree nodes, power rails, and a working USB
+gadget path still need to be validated. The base config currently has
+`CONFIG_PSTORE_RAM=m`; the Spes candidate config will make it built-in so the
+ramoops region can be used during early bring-up.
