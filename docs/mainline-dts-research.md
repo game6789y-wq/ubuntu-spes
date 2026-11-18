@@ -124,3 +124,45 @@ DTB/FDT and independently map its hardware nodes to supported Mainline
 bindings before creating a board DTS.
 
 Reference: https://github.com/Sype0/pmos-tapas/tree/c5b6ab106f8277908a56b77a6a595d4ad0531dba/dts
+
+
+## Additional public Redmi Note 11 board evidence (source inspection)
+
+To avoid requiring a new dump from the handset at this stage, two public
+downstream device-tree sources were inspected:
+
+1. `Jabiyeff/kernel_xiaomi_sm6225` contains the Redmi Note 11-specific
+   `arch/arm64/boot/dts/vendor/qcom/spes.dtsi` and shared
+   `khaje.dtsi`. The board file includes the Khaje base and overrides
+   board-specific nodes. It exposes candidate wiring such as the Max77729
+   interrupt on TLMM GPIO105 and the SC8551 charger interrupt on GPIO84,
+   with the SC8551 node at I2C address 0x65. These are vendor-kernel
+   declarations, not proof that Linux Mainline has matching drivers or that
+   every regional/board revision uses the same population.
+
+2. `muralivijay/android_kernel_xiaomi_sm6225-devicetrees` contains
+   `qcom/spes-khaje-idp-nopmi-overlay.dts`, which includes `spes.dtsi`
+   and declares compatible strings `qcom,khaje-idp`, `qcom,khaje`,
+   `qcom,idp`, MSM ID 518 / 0x10000, board ID 0x20022, and PMIC ID
+   0x2D. This is explicitly an IDP/no-PMI overlay in a downstream
+   devicetree collection; treat the identifiers as cross-reference clues,
+   not as a validated stock-phone DTB identity.
+
+These findings give us enough public material to continue building a
+hardware-reference matrix without waiting for a user-side collection script.
+They do **not** remove the need to validate memory/reserved-memory,
+regulators, panel, touch, UFS, WLAN, and bootloader hand-off against the
+actual firmware/device before creating a bootable DTS or image.
+
+Source files:
+- https://github.com/Jabiyeff/kernel_xiaomi_sm6225/blob/6c2b3e7528a0778cd80c95eabb490746b5422f8c/arch/arm64/boot/dts/vendor/qcom/spes.dtsi
+- https://github.com/Jabiyeff/kernel_xiaomi_sm6225/blob/6c2b3e7528a0778cd80c95eabb490746b5422f8c/arch/arm64/boot/dts/vendor/qcom/khaje.dtsi
+- https://github.com/muralivijay/android_kernel_xiaomi_sm6225-devicetrees/blob/main/qcom/spes-khaje-idp-nopmi-overlay.dts
+
+## Work approach update
+
+Continue first from publicly available source repositories and firmware
+research. The optional `scripts/collect-spes-device-info.sh` is a fallback
+for later validation, not a blocker for ongoing source analysis. Do not mark
+the board DTS, boot chain, or physical boot as verified based only on public
+downstream sources.
