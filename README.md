@@ -12,14 +12,14 @@ The goal is to bring up a mainline Linux kernel first, then add device-specific 
 |---|---|
 | Repository and CI scaffold | Added |
 | Generic ARM64 kernel smoke build | Passed (historical run #4) |
-| SM6225 baseline-config kernel build | Passed (run #13) |
-| `spes` Mainline device tree validation | Pending; no verified device-specific Mainline DTS yet |
+| SM6225 baseline-config kernel build | Passed (run #48) |
+| `spes` DTS candidate compile | Passed (run #48; compile-only, not hardware-validated) |
 | Boot chain / boot image format | Not verified |
 | Display, touch, USB, storage, Wi-Fi, audio | Not tested |
 | Ubuntu root filesystem | Not started |
 | Boot on physical device | Not tested |
 
-Run #13 successfully compiled the pinned SM6225 Mainline source with the SM6225 baseline config and uploaded artifact `spes-mainline-kernel-smoke-13` (18,342,586 bytes; retained for 7 days from 2026-11-18). This confirms the selected source/configuration can produce a kernel image; it does **not** prove that the image boots on the Redmi Note 11. [View Run #13](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44244665280).
+Run #48 successfully compiled the pinned SM6225 Mainline kernel, passed the upstream FT5452/config checks, compiled the pinned `tapas` reference DTB, audited reserved-memory source definitions, and compiled the current `spes` DTS candidate. The uploaded artifact is `spes-mainline-kernel-smoke-48` (18,338,041 bytes; expires 2026-11-25). It contains the kernel smoke-build outputs, **not** the `spes` DTB, initramfs, or a boot image. A successful DTS compile proves syntax/phandle integration only; it does **not** validate regulator values, bootability, or hardware operation. [View Run #48](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44272951114).
 
 ## Hardware target
 
@@ -42,7 +42,7 @@ Different regional variants and board revisions may require different device-tre
 
 ## Build
 
-The GitHub Actions workflow compiles the pinned SM6225 Mainline source using the postmarketOS baseline configuration and checks the built-in FocalTech driver. It also compiles the pinned `tapas` reference DTB to validate the SM6225/PM6125 DTSI path; that is a reference-only compile test, not a `spes` DTB. It does not produce a device-bootable image.
+The GitHub Actions workflow compiles the pinned SM6225 Mainline source using the postmarketOS baseline configuration and checks the built-in FocalTech driver. It compiles both the pinned `tapas` reference DTB and the current `spes` DTS candidate. The latter is a compile-only candidate, not a hardware-validated board description. Neither DTB is included in the smoke artifact, and the workflow does not produce a device-bootable image.
 
 1. Open **Actions** in this repository.
 2. Select **Mainline kernel CI**.
@@ -59,11 +59,11 @@ The GitHub Actions workflow compiles the pinned SM6225 Mainline source using the
 
 ## Roadmap
 
-1. Validate the pinned mainline kernel source and ARM64 build toolchain in CI. **Current pinned source/config build passed in run #13.**
+1. Validate the pinned mainline kernel source and ARM64 build toolchain in CI. **Kernel build passed in run #48.**
 2. Validate the pinned SM6225 baseline configuration and identify its exact originating pmaports revision.
 3. Obtain and inspect the `spes` Mainline device-tree sources.
 4. Compare any candidate Mainline device tree with the stock `spes` DTB and hardware revisions.
-5. Add a minimal, reviewable `spes` DTS and build DTBs.
+5. Continue reducing the `spes` DTS to a hardware-evidenced minimal board description; the current candidate compiles in run #48 but is not yet validated against the live stock FDT.
 6. Inspect the real boot chain and image format before creating any boot image.
 7. Bring up serial/USB and storage, then display and touch.
 8. Build an Ubuntu ARM64 root filesystem only after the kernel can boot reliably.
@@ -80,4 +80,4 @@ The GitHub Actions workflow compiles the pinned SM6225 Mainline source using the
 No license has been selected yet. Until one is added, all rights are reserved by default.
 
 
-The current build uses the SM6225 baseline kernel configuration snapshot in `config/sm6225-base.config`. Its provenance and limitations are documented in [Mainline DTS research](docs/mainline-dts-research.md). A downstream `spes.dtsi` has been inspected for hardware clues, but no verified Mainline `spes` DTS has been added.
+The current build uses the SM6225 baseline kernel configuration snapshot in `config/sm6225-base.config`. Its provenance and limitations are documented in [Mainline DTS research](docs/mainline-dts-research.md). A candidate Mainline `spes` DTS is now compiled by CI, but it remains unverified against the exact phone's live FDT/DTBO and must not be treated as bootable.
