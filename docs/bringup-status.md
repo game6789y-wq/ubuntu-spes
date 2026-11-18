@@ -5,9 +5,9 @@ This checklist is intentionally conservative. Mark an item complete only after a
 ## Source and build
 
 - [ ] Confirm the pinned kernel archive is reachable and matches the recorded commit.
-- [ ] Complete the generic ARM64 smoke build in GitHub Actions.
-- [ ] Locate the exact `spes` SM6225 kernel config used by postmarketOS.
-- [ ] Inspect the current SM6225 mainline DTS files and their include dependencies.
+- [x] Complete the generic ARM64 smoke build in GitHub Actions (run #4 succeeded; generic smoke build only).
+- [ ] Locate and pin the exact `spes` SM6225 kernel package/config revision used by postmarketOS (Mainline lead identified; exact package source still to verify).
+- [ ] Inspect the current SM6225 mainline DTS files and their include dependencies (research lead documented in `mainline-dts-research.md`; direct source inspection remains open).
 - [ ] Compare the mainline DTS with stock `spes` DTBs from the same hardware variant.
 - [ ] Record all local patches with source links and rationale.
 
