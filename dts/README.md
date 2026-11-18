@@ -25,16 +25,19 @@ Our copy fixes the original spelling error `#adress-cells` to
 `#address-cells` and removes the postmarketOS-only `pmos.nosplash` bootarg.
 The two clock/power keep-alive flags remain temporary bring-up flags.
 
-## Explicitly not implemented yet
+## Current candidate state
 
-- Includes the PM6125 base DTSI and a minimal L9 (1.8-2.0 V) regulator
-  declaration used by the touchscreen candidate; this is not the full PMIC
-  regulator tree.
-- Enables the QUPv3 SE2 / Mainline `i2c2` bus with a 19.2 MHz source clock.
-- Contains an upstream FocalTech FT5452 node at I2C 0x38, but leaves it
-  `status = "disabled"` until the live Spes DTB resolves GPIO80 vs GPIO89 and
-  confirms the power sequence. Its AVDD GPIO98 is represented by a fixed
-  regulator and L9 is the I/O supply.
+Implemented in the candidate:
+- PM6125 base DTSI, PMIC power key, and a minimal L9 (1.8-2.0 V) regulator
+  declaration for the disabled touchscreen candidate; not a full PMIC tree.
+- QUPv3 SE2 / Mainline `i2c2` bus enabled with a 19.2 MHz source clock.
+- Upstream FocalTech FT5452 node at I2C 0x38, kept `status = "disabled"`
+  until the live Spes DTB resolves GPIO80 vs GPIO89 and confirms power
+  sequencing. AVDD GPIO98 is represented by a fixed regulator and L9 is the
+  I/O supply.
+- Simple framebuffer candidate and 4 MiB ramoops reservation.
+
+Not implemented or not verified:
 - No active Type-C, charger, UFS, SD-card, USB, Wi-Fi, audio, camera, or
   display-panel driver nodes.
 - No verified live RAM size, DTBO overlay selection, board revision, or boot
