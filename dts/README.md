@@ -27,16 +27,24 @@ The two clock/power keep-alive flags remain temporary bring-up flags.
 
 ## Explicitly not implemented yet
 
-- No PM6125 regulator tree or board-specific regulator votes.
-- No I2C, FocalTech, Type-C, charger, UFS, SD-card, USB, Wi-Fi, audio, camera,
-  or display-panel driver nodes.
+- Includes the PM6125 base DTSI and a minimal L9 (1.8-2.0 V) regulator
+  declaration used by the touchscreen candidate; this is not the full PMIC
+  regulator tree.
+- Enables the QUPv3 SE2 / Mainline `i2c2` bus with a 19.2 MHz source clock.
+- Contains an upstream FocalTech FT5452 node at I2C 0x38, but leaves it
+  `status = "disabled"` until the live Spes DTB resolves GPIO80 vs GPIO89 and
+  confirms the power sequence. Its AVDD GPIO98 is represented by a fixed
+  regulator and L9 is the I/O supply.
+- No active Type-C, charger, UFS, SD-card, USB, Wi-Fi, audio, camera, or
+  display-panel driver nodes.
 - No verified live RAM size, DTBO overlay selection, board revision, or boot
   hand-off.
 - No claim that this candidate is safe to boot or flash.
 
-The independent same-model hardware report supports the framebuffer address
-and FocalTech FT5452 identification, but does not replace the target phone's
-own live FDT/DTBO. The original upstream skeleton was last updated in the
+The independent same-model hardware report supports the framebuffer address,
+FocalTech FT5452 identification, GPIO98 AVDD, GPIO86 reset, GPIO80 IRQ and
+PM6125 L9 at 1.8 V, but does not replace the target phone's own live FDT/DTBO.
+The original upstream skeleton was last updated in the
 referenced branch by commit `936aa708e5423d2d2ffba2ad5db7704d803782a0`, whose
 message adds temporary `clk_ignore_unused` and `pd_ignore_unused` boot flags.
 The next source-driven step is to compile this candidate against the repository's
