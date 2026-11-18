@@ -90,7 +90,9 @@ five-contact device and the binding accepts `vcc-supply` and `iovcc-supply`.
 The Android vendor driver instead uses the non-upstream `focaltech,fts`
 compatible and a vendor `focaltech,max-touch-number` property; that node is
 not copied. The candidate maps GPIO98 AVDD to a fixed enable regulator and
-PM6125 L9 (1.8-2.0 V) to `iovcc-supply`. The candidate uses GPIO80 falling-edge
+PM6125 L9 (1.8-2.0 V) to `iovcc-supply`. L9 is not marked always-on, so the
+FT5452 consumer will request it when the disabled node is later enabled. The
+candidate uses GPIO80 falling-edge
 IRQ because it is supported by the Tapas reference and independent Spes test,
 but one downstream Spes DT node says GPIO89. It therefore remains disabled
 until the handset's live DTB/DTBO confirms the interrupt line and pinmux.
