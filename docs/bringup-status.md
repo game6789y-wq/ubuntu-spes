@@ -10,6 +10,7 @@ This checklist is intentionally conservative. Mark an item complete only after a
 - [ ] Identify the exact originating postmarketOS pmaports commit for that config.
 - [ ] Inspect the current SM6225 Mainline DTS files and their include dependencies (still open; no confirmed `spes` Mainline DTS found).
 - [x] Inspect the downstream `spes.dtsi` / `khaje.dtsi` vendor reference; documented as non-portable source material in `mainline-dts-research.md`.
+- [x] Compare board-level charger/USB-C/SD-card declarations in downstream `spes.dtsi` against the tapas Mainline reference; record mismatches and candidate GPIOs in `spes-hardware-reference-matrix.md`.
 - [x] Audit a public `spes/spesn` Android `BoardConfig.mk` (branch `sixteen-qpr2`); boot header v3, separate DTBO, and `khaje.dtb` build input recorded as Android build evidence only in `spes-boardconfig-audit.md`.
 - [x] Fetch and inspect the prebuilt `dtb/khaje.dtb` FDT header and trace its generic downstream `khaje.dts` / `khaje.dtsi` source; not a board-specific Mainline DTS.
 - [ ] Decode and inventory the prebuilt `dtbo.img` and identify each overlay (GitHub text endpoint exposed only the blob SHA, not binary bytes). A read-only parser is now available at `scripts/inspect_android_dt_table.py` for use once the binary is obtained.
