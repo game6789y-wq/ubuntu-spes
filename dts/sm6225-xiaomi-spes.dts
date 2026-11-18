@@ -59,6 +59,10 @@
 		/*
 		 * Candidate ramoops range follows the SM6225 SoC DTSI splash
 		 * and dfps reservations. Verify against the live FDT first.
+		 * TODO: the independent Spes live-FDT report also records a modem
+		 * carveout at 0x4ab00000/0x06900000 and WLAN MSA at
+		 * 0x51900000/0x00100000. These are not added here until the exact
+		 * handset firmware's complete reserved-memory map is inspected.
 		 */
 		ramoops@5d000000 {
 			compatible = "ramoops";
