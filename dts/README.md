@@ -133,8 +133,9 @@ A separate U-Boot DTS exists for **Redmi Note 11 NFC** (`spesn`):
 https://github.com/SCOS100/u-boot/blob/d00de2bac93d0a68c609b19f7fdbfa34f1a16375/dts/upstream/src/arm64/qcom/sm6225-xiaomi-spesn.dts
 
 It uses board ID `0x30022`, while the non-NFC `spes` source used here uses
-`0x20022`. The NFC DTS also selects a different framebuffer format and
-includes a larger set of peripheral nodes. Do not copy its board ID, panel,
+`0x20022`. The NFC DTS selects framebuffer format `a8b8g8r8`, while the
+non-NFC Spes source selects `a8r8g8b8`, and it includes a larger set of
+peripheral nodes. Do not copy its board ID, panel,
 firmware paths, or full regulator/device configuration into this `spes`
 candidate. Shared PM6125/SM6225 nodes may be used only after cross-checking
 against the non-NFC Spes source and the target phone's live FDT/DTBO.
