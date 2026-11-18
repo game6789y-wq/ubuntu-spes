@@ -53,3 +53,21 @@ availability facts only; device-tree nodes, power rails, and a working USB
 gadget path still need to be validated. The base config currently has
 `CONFIG_PSTORE_RAM=m`; the Spes candidate config will make it built-in so the
 ramoops region can be used during early bring-up.
+
+
+## Read-only handset evidence collection (Android root shell)
+
+The repository includes `scripts/dump-spes-dtbo-readonly.sh`. Run it from a
+root shell on the target phone, passing a writable output directory, for
+example:
+
+```sh
+su -c 'sh /path/to/ubuntu-spes/scripts/dump-spes-dtbo-readonly.sh /sdcard/Download/spes-dtbo'
+```
+
+It selects the DTBO partition matching `ro.boot.slot_suffix`, refuses to
+guess when the active slot cannot be identified, and reads the partition into
+a file under the output directory. It never writes to a block device. Also run
+`scripts/collect-spes-device-info.sh` to capture the live FDT and partition
+metadata. Upload the resulting DTBO image and FDT here for overlay selection,
+GPIO, regulator, panel and memory-map reconciliation.
