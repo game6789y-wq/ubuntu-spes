@@ -84,7 +84,12 @@
 	};
 };
 
-/* PM6125 L9 is the 1.8 V touchscreen I/O rail in the stock Spes FDT. */
+/* PM6125 power key and L9 touchscreen I/O rail. */
+&pon_pwrkey {
+	status = "okay";
+};
+
+/* L9 is reported as 1.8 V in the independent same-model Spes hardware test. */
 &rpm_requests {
 	regulators-0 {
 		compatible = "qcom,rpm-pm6125-regulators";
