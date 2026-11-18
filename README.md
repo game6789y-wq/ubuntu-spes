@@ -33,6 +33,7 @@ Different regional variants and board revisions may require different device-tre
 ## Research notes
 
 - [Mainline DTS research for SM6225 / spes](docs/mainline-dts-research.md)
+- [spes hardware reference matrix](docs/spes-hardware-reference-matrix.md)
 - [SM6225 Mainline implementation and porting plan](docs/sm6225-mainline-porting-plan.md)
 - [spes Android BoardConfig and DTB audit (reference only)](docs/spes-boardconfig-audit.md)
 - [Additional SM6225 reference ports](docs/sm6225-reference-ports.md)
