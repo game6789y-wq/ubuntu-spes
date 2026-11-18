@@ -9,6 +9,8 @@ on:
       - "README.md"
       - "docs/**"
       - "config/**"
+      - "dts/**"
+      - "scripts/**"
 
 permissions:
   contents: read
@@ -19,7 +21,7 @@ concurrency:
 
 jobs:
   kernel-smoke-build:
-    name: Build SM6225 baseline kernel
+    name: Build SM6225 kernel and Spes DTS candidate
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 120
     env:
@@ -52,6 +54,9 @@ jobs:
           set -eux
           mkdir -p "$RUNNER_TEMP/kernel-out"
           cp "$GITHUB_WORKSPACE/config/sm6225-base.config" "$RUNNER_TEMP/kernel-out/.config"
+          scripts/kconfig/merge_config.sh -m -O "$RUNNER_TEMP/kernel-out" \
+            "$RUNNER_TEMP/kernel-out/.config" \
+            "$GITHUB_WORKSPACE/config/spes-candidate.config"
           make ARCH=arm64 LLVM=1 O="$RUNNER_TEMP/kernel-out" olddefconfig
 
       - name: Compile kernel image
@@ -62,11 +67,17 @@ jobs:
             O="$RUNNER_TEMP/kernel-out" Image
 
 
-      - name: Verify built-in FocalTech FT5452 driver
+      - name: Verify upstream FT5452 driver and Spes bring-up config
+        working-directory: kernel-src
         run: |
           set -eux
           grep -qx 'CONFIG_INPUT_TOUCHSCREEN=y' "$RUNNER_TEMP/kernel-out/.config"
           grep -qx 'CONFIG_TOUCHSCREEN_EDT_FT5X06=y' "$RUNNER_TEMP/kernel-out/.config"
+          grep -qx 'CONFIG_PSTORE_RAM=y' "$RUNNER_TEMP/kernel-out/.config"
+          grep -qx 'CONFIG_POWER_RESET_QCOM_PON=y' "$RUNNER_TEMP/kernel-out/.config"
+          ! grep -qx 'CONFIG_TOUCHSCREEN_FTS=y' "$RUNNER_TEMP/kernel-out/.config"
+          grep -q 'focaltech,ft5452' drivers/input/touchscreen/edt-ft5x06.c
+          grep -q 'focaltech,ft5452' Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
 
       - name: Compile pinned SM6225/tapas DTS reference (not a spes DTB)
         working-directory: kernel-src
@@ -108,6 +119,30 @@ jobs:
             O="$RUNNER_TEMP/kernel-out" qcom/sm6225-xiaomi-tapas.dtb
           test -s "$RUNNER_TEMP/kernel-out/$DTS_DIR/sm6225-xiaomi-tapas.dtb"
 
+      - name: Audit pinned SM6225 reserved-memory definitions
+        working-directory: kernel-src
+        run: |
+          set -eux
+          DTSI=arch/arm64/boot/dts/qcom/sm6225.dtsi
+          test -f "$DTSI"
+          echo "=== Reserved-memory labels and Spes cross-check addresses ==="
+          grep -nE 'pil_modem_mem|wlan_msa_mem|0x4ab00000|0x51900000|0x46000000|0x5c000000|0x5cf00000' "$DTSI" || true
+
+      - name: Compile Spes DTS candidate (compile-only, not flashable)
+        working-directory: kernel-src
+        run: |
+          set -eux
+          DTS_DIR=arch/arm64/boot/dts/qcom
+          cp "$GITHUB_WORKSPACE/dts/sm6225-xiaomi-spes.dts" "$DTS_DIR/sm6225-xiaomi-spes.dts"
+          test -f "$DTS_DIR/sm6225.dtsi"
+          test -f "$DTS_DIR/pm6125.dtsi"
+          if ! grep -qF 'sm6225-xiaomi-spes.dtb' "$DTS_DIR/Makefile"; then
+            echo 'dtb-$(CONFIG_ARCH_QCOM) += sm6225-xiaomi-spes.dtb' >> "$DTS_DIR/Makefile"
+          fi
+          make -j"$(nproc)" ARCH=arm64 LLVM=1 \
+            O="$RUNNER_TEMP/kernel-out" qcom/sm6225-xiaomi-spes.dtb
+          test -s "$RUNNER_TEMP/kernel-out/$DTS_DIR/sm6225-xiaomi-spes.dtb"
+
       - name: Collect smoke-build output
         if: always()
         run: |
@@ -122,6 +157,13 @@ jobs:
             cp "$RUNNER_TEMP/kernel-out/include/config/kernel.release" dist/kernel.release
           fi
           echo "$KERNEL_COMMIT" > dist/source-commit.txt
+          cat > dist/README.txt <<'EOF'
+          COMPILE-ONLY SMOKE ARTIFACT — NOT DEVICE-BOOTABLE.
+          The Image is a kernel build test. The Spes DTB candidate is compiled
+          in CI but is not included in this artifact. No initramfs, verified
+          boot image, firmware bundle, or recovery procedure is included.
+          Do not flash this artifact to the phone.
+          EOF
           du -h dist/* 2>/dev/null || true
 
       - name: Upload smoke-build artifact
