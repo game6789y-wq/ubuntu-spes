@@ -1,0 +1,69 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Xiaomi Redmi Note 11 (spes), Qualcomm SM6225 / Khaje.
+ *
+ * Derived from the early Mainline bring-up DTS in
+ * external-mirrors/sm6225-mainline-linux, branch sm6225/v6.19-rc8,
+ * commit 467185042fc7a8e2da4589767dd0d7b8ddc422e8
+ * (original DTS blob 4a2b84c19250adc18c79b67df38d7d6bb332e6fb).
+ *
+ * This is a compile-tested candidate skeleton, not a boot-tested board DTS.
+ * MSM/board IDs, framebuffer address and ramoops range must be reconciled
+ * with the exact handset firmware/live FDT before any boot attempt.
+ *
+ * Copyright (c) 2026, Rayan Marzouk
+ */
+
+ /dts-v1/;
+#include "sm6225.dtsi"
+
+/ {
+	model = "Xiaomi Redmi Note 11";
+	compatible = "xiaomi,spes", "qcom,sm6225";
+	chassis-type = "handset";
+
+	/* Candidate XBL identifiers from the referenced spes DTS. */
+	qcom,msm-id = <518 0x10000>;
+	qcom,board-id = <0x20022 0>;
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* Temporary bring-up flags; remove after clock/power drivers work. */
+		bootargs = "clk_ignore_unused pd_ignore_unused";
+
+		/*
+		 * Candidate bootloader framebuffer from same-model external
+		 * hardware evidence. Do not assume this is valid for every panel.
+		 */
+		framebuffer0: framebuffer@5c000000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x5c000000 0x0 (2400 * 1080 * 4)>;
+			width = <1080>;
+			height = <2400>;
+			stride = <(1080 * 4)>;
+			format = "a8r8g8b8";
+		};
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/*
+		 * Candidate ramoops range follows the SM6225 SoC DTSI splash
+		 * and dfps reservations. Verify against the live FDT first.
+		 */
+		ramoops@5d000000 {
+			compatible = "ramoops";
+			reg = <0x0 0x5d000000 0x0 0x400000>;
+			record-size = <0x80000>;
+			pmsg-size = <0x200000>;
+			console-size = <0x100000>;
+			max-reason = <0x04>;
+		};
+	};
+};
