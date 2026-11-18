@@ -8,6 +8,7 @@ on:
       - ".github/workflows/kernel-build.yml"
       - "README.md"
       - "docs/**"
+      - "config/**"
 
 permissions:
   contents: read
@@ -18,7 +19,7 @@ concurrency:
 
 jobs:
   kernel-smoke-build:
-    name: Build generic ARM64 kernel
+    name: Build SM6225 baseline kernel
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 120
     env:
@@ -42,11 +43,11 @@ jobs:
           test -f kernel-src/Makefile
           echo "$KERNEL_COMMIT" > kernel-src/SOURCE_COMMIT
 
-      - name: Configure generic ARM64 kernel
+      - name: Configure SM6225 baseline kernel
         working-directory: kernel-src
         run: |
           set -eux
-          make ARCH=arm64 LLVM=1 O="$RUNNER_TEMP/kernel-out" defconfig
+          cp "$GITHUB_WORKSPACE/config/sm6225-base.config" "$RUNNER_TEMP/kernel-out/.config"
           make ARCH=arm64 LLVM=1 O="$RUNNER_TEMP/kernel-out" olddefconfig
 
       - name: Compile kernel image
