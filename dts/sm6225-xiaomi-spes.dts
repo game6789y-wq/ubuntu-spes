@@ -88,21 +88,37 @@
 	};
 };
 
-/* PM6125 power key and L9 touchscreen I/O rail. */
-&pon_pwrkey {
-	status = "okay";
-};
-
-/* L9 is reported as 1.8 V in the independent same-model Spes hardware test. */
+/*
+ * The SM6225 CAMSS node in the pinned SoC DTSI consumes PM6125 L4 and L18.
+ * Values below are provisional electrical ranges cross-checked against the
+ * upstream SM6115/PM6125 board DTS. They are compile-time declarations only:
+ * verify the exact Spes PMIC rail programming from its live DTB/vendor data
+ * before enabling camera or attempting a physical boot.
+ */
 &rpm_requests {
 	regulators-0 {
 		compatible = "qcom,rpm-pm6125-regulators";
+
+		pm6125_l4: l4 {
+			regulator-min-microvolt = <488000>;
+			regulator-max-microvolt = <1000000>;
+		};
 
 		pm6125_l9: l9 {
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <2000000>;
 		};
+
+		pm6125_l18: l18 {
+			regulator-min-microvolt = <1232000>;
+			regulator-max-microvolt = <1232000>;
+		};
 	};
+};
+
+/* PM6125 power key. */
+&pon_pwrkey {
+	status = "okay";
 };
 
 /*
