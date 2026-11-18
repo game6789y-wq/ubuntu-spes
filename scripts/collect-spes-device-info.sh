@@ -55,7 +55,7 @@ prop() {
   echo
   echo "=== Kernel command line (identifiers redacted) ==="
   if [ -r /proc/cmdline ]; then
-    sed -E 's/(androidboot\.(serialno|wifimacaddr|btmacaddr)=[^ ]*)/\1=<redacted>/g' /proc/cmdline
+    sed -E 's/(androidboot\.(serialno|wifimacaddr|btmacaddr))=[^ ]*/\1=<redacted>/g' /proc/cmdline
   fi
 
   echo
