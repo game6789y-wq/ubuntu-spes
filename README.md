@@ -12,14 +12,14 @@ The goal is to bring up a mainline Linux kernel first, then add device-specific 
 |---|---|
 | Repository and CI scaffold | Added |
 | Generic ARM64 kernel smoke build | Passed (historical run #4) |
-| SM6225 baseline-config kernel build | Added to CI; pending new run |
-| `spes` Mainline device tree validation | Pending; downstream vendor DTS inspected as reference only |
+| SM6225 baseline-config kernel build | Passed (run #13) |
+| `spes` Mainline device tree validation | Pending; no verified device-specific Mainline DTS yet |
 | Boot chain / boot image format | Not verified |
 | Display, touch, USB, storage, Wi-Fi, audio | Not tested |
 | Ubuntu root filesystem | Not started |
 | Boot on physical device | Not tested |
 
-A successful CI build only proves that the selected kernel source and configuration compile. It does **not** prove that the kernel can boot on the Redmi Note 11.
+Run #13 successfully compiled the pinned SM6225 Mainline source with the SM6225 baseline config and uploaded artifact `spes-mainline-kernel-smoke-13` (18,342,586 bytes; retained for 7 days from 2026-11-18). This confirms the selected source/configuration can produce a kernel image; it does **not** prove that the image boots on the Redmi Note 11. [View Run #13](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44244665280).
 
 ## Hardware target
 
@@ -54,7 +54,7 @@ The GitHub Actions workflow compiles the pinned SM6225 Mainline source using a p
 
 ## Roadmap
 
-1. Validate the pinned mainline kernel source and ARM64 build toolchain in CI.
+1. Validate the pinned mainline kernel source and ARM64 build toolchain in CI. **Current pinned source/config build passed in run #13.**
 2. Validate the pinned SM6225 baseline configuration and identify its exact originating pmaports revision.
 3. Obtain and inspect the `spes` Mainline device-tree sources.
 4. Compare any candidate Mainline device tree with the stock `spes` DTB and hardware revisions.
