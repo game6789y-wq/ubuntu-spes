@@ -149,3 +149,9 @@ this non-NFC Redmi Note 11. The accessible GitHub U-Boot mirror contains a
 `spesn` (NFC) DTS with board ID 0x30022, not the `spes` board ID 0x20022 used
 here. Do not flash a U-Boot image or reuse its board configuration until the
 exact non-NFC target is confirmed and a recovery path is tested.
+
+
+Additional same-model hardware references (research leads; not a substitute for
+the target phone's live data):
+- https://github.com/AdyaGMD/ios-spes/blob/bdc2682efd6398f61185eab398361b066bf93794/docs/SPES-TOUCH-POWER.md
+- https://github.com/AdyaGMD/ios-spes/blob/bdc2682efd6398f61185eab398361b066bf93794/docs/SPES-UPSTREAM-20261021.md
