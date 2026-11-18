@@ -130,3 +130,17 @@ includes a larger set of peripheral nodes. Do not copy its board ID, panel,
 firmware paths, or full regulator/device configuration into this `spes`
 candidate. Shared PM6125/SM6225 nodes may be used only after cross-checking
 against the non-NFC Spes source and the target phone's live FDT/DTBO.
+
+
+## Alternative bootloader research lead
+
+The related SM6225 Linux bring-up project for Redmi Pad SE (xun) lists a
+U-Boot 2026.07 port with `xiaomi_spes_defconfig`, EFI loader, fastboot, UFS and
+USB support as an alternative boot path:
+https://github.com/xushengfeng/redmi_pad_se_xun_linux/blob/main/docs/RESOURCES.md
+
+This is a project-reported lead, not a verified U-Boot build or boot test on
+this non-NFC Redmi Note 11. The accessible GitHub U-Boot mirror contains a
+`spesn` (NFC) DTS with board ID 0x30022, not the `spes` board ID 0x20022 used
+here. Do not flash a U-Boot image or reuse its board configuration until the
+exact non-NFC target is confirmed and a recovery path is tested.
