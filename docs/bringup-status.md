@@ -8,13 +8,13 @@ This checklist is intentionally conservative. Mark an item complete only after a
 - [x] Complete the generic ARM64 smoke build in GitHub Actions (run #4 succeeded; generic smoke build only).
 - [x] Pin the SM6225 baseline config snapshot used by the pmos-tapas project (source commit `c5b6ab106f8277908a56b77a6a595d4ad0531dba`; config blob SHA matches the reference implementation).
 - [ ] Identify the exact originating postmarketOS pmaports commit for that config.
-- [ ] Inspect the current SM6225 Mainline DTS files and their include dependencies (still open; no confirmed `spes` Mainline DTS found).
+- [x] Inspect the pinned SM6225 Mainline DTS files and include dependencies sufficiently to compile the current candidate.
 - [x] Inspect the downstream `spes.dtsi` / `khaje.dtsi` vendor reference; documented as non-portable source material in `mainline-dts-research.md`.
 - [x] Reconcile charger/USB-C clues across the downstream spes tree and tapas reference; record source disagreement and avoid selecting a topology before live DTB/DTBO inspection.
 - [x] Trace the inherited FocalTech touchscreen node; independent same-model hardware notes report ID 54:52, matching Mainline `focaltech,ft5452`; IRQ mapping remains unresolved (GPIO80 vs GPIO89).
 - [x] Confirm `CONFIG_TOUCHSCREEN_EDT_FT5X06=y` is already built into the pinned SM6225 baseline config.
 - [x] Inspect the pinned tapas reference DTS: it includes the SM6225 and PM6125 SoC/PMIC DTSI files and states it follows the spes board layout; do not copy its board-specific values.
-- [ ] Add a CI-only compile test for the pinned tapas reference DTB; this is not a spes DTB or a bootable artifact.
+- [x] Add a CI-only compile test for the pinned tapas reference DTB; run #48 passed (reference-only, not a spes DTB).
 - [x] Audit a public `spes/spesn` Android `BoardConfig.mk` (branch `sixteen-qpr2`); boot header v3, separate DTBO, and `khaje.dtb` build input recorded as Android build evidence only in `spes-boardconfig-audit.md`.
 - [x] Fetch and inspect the prebuilt `dtb/khaje.dtb` FDT header and trace its generic downstream `khaje.dts` / `khaje.dtsi` source; not a board-specific Mainline DTS.
 - [ ] Decode and inventory the prebuilt `dtbo.img` and identify each overlay (GitHub text endpoint exposed only the blob SHA, not binary bytes). A read-only parser is now available at `scripts/inspect_android_dt_table.py` for use once the binary is obtained.
@@ -67,3 +67,22 @@ Reference: [Evolution-X device_xiaomi_spes BoardConfig.mk](https://github.com/Ev
 ## External hardware evidence (not locally verified)
 
 A third-party `spes` bring-up report describes boot/vendor_boot header v3 and a vendor_boot DTB plus DTBO overlays for one firmware build. Use this only to guide read-only inspection on the target handset. The local boot chain, DTB selection, memory map, and RAM variant remain unverified.
+
+
+## Latest verified CI result (2026-11-18)
+
+- Workflow run #48: [Mainline kernel CI](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44272951114)
+- Commit: `7f5953a8cd65bef707b4e20be21add9caf476936`
+- Overall result: **success**.
+- Job: `Build SM6225 kernel and Spes DTS candidate` — success.
+- Successful steps include kernel Image compilation, upstream FT5452/config checks, pinned Tapas reference DTB compilation, reserved-memory source audit, and compile-only `sm6225-xiaomi-spes.dtb` candidate compilation.
+- Artifact: `spes-mainline-kernel-smoke-48` (18,338,041 bytes; expires 2026-11-25). The artifact does not include the Spes DTB, initramfs, or a boot image.
+- This is the first verified CI pass for the current Spes DTS candidate after the missing `pm6125_l4` / `pm6125_l18` phandle error. It confirms compile-time integration only, not correct regulator voltages, correct live DTB hand-off, or physical boot.
+
+## Next blocking evidence
+
+1. Obtain the exact handset's stock `vendor_boot`, `dtbo`, and live FDT read-only, then decode and inventory the DTB/overlays.
+2. Confirm PM6125 rail IDs/voltages from that exact firmware and board revision. Public Spes downstream and Tapas reference sources disagree on L4/L18 use/voltage; keep the current declarations provisional.
+3. Confirm memory/reserved-memory and framebuffer/ramoops addresses from the live FDT before enabling those nodes.
+4. Only after the above, enable UFS and display/touch consumers and add `dtbs_check`/binding validation.
+5. Verify the boot header and DTB hand-off before creating any non-persistent test image.
