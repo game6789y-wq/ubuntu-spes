@@ -58,9 +58,9 @@ The pinned SM6225 base config already enables `CONFIG_DRM_SIMPLEDRM=y`,
 `CONFIG_TOUCHSCREEN_EDT_FT5X06=y`, `CONFIG_USB_GADGET=y`,
 `CONFIG_USB_DWC3=y`, and `CONFIG_USB_DWC3_DUAL_ROLE=y`. These are driver
 availability facts only; device-tree nodes, power rails, and a working USB
-gadget path still need to be validated. The base config currently has
-`CONFIG_PSTORE_RAM=m`; the Spes candidate config will make it built-in so the
-ramoops region can be used during early bring-up.
+gadget path still need to be validated. The base config currently has `CONFIG_PSTORE_RAM=m` and
+`CONFIG_POWER_RESET_QCOM_PON=m`; the Spes candidate config will make both
+built-in so ramoops and PMIC reset are available during early bring-up.
 
 
 ## Read-only handset evidence collection (Android root shell)
