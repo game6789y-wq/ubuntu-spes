@@ -97,3 +97,30 @@ The project CI will now compile the pinned Mainline source with this SM6225
 baseline instead of generic ARM64 `defconfig`. This raises the value
 of the build check, but it still does not validate a device-specific DTB,
 boot image, or physical boot.
+
+## Exact inventory of the related SM6225 bring-up repository
+
+The public `Sype0/pmos-tapas` repository tree was inspected at commit
+`c5b6ab106f8277908a56b77a6a595d4ad0531dba`. Its DTS directory contains
+only these board files:
+
+- `sm6225-xiaomi-tapas.dts`
+- `sm6225-xiaomi-tapas-audio.dts`
+- `sm6225-xiaomi-tapas-display.dts`
+- `sm6225-xiaomi-tapas-safe.dts`
+
+There is no `spes` board DTS in that repository tree. The shared base
+configuration blob is the same immutable blob already recorded above
+(`d234c5df781cf688b2da9b83f6b63404c9d1600e`). The repository README
+describes the kernel as `linux-v.7.2.1` / `stable-sm6225` and identifies
+the baseline config as originating from the postmarketOS SM6225 kernel
+package for Redmi Note 11 (`spes`).
+
+This confirms the distinction: the kernel configuration is a useful
+`spes`-related baseline, while the available board DTS files in this
+reference project are for `tapas` only. Do not rename or repurpose those
+DTS files as `spes`. The next safe step is to obtain the stock `spes`
+DTB/FDT and independently map its hardware nodes to supported Mainline
+bindings before creating a board DTS.
+
+Reference: https://github.com/Sype0/pmos-tapas/tree/c5b6ab106f8277908a56b77a6a595d4ad0531dba/dts
