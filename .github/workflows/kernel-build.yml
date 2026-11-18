@@ -1,0 +1,82 @@
+name: Mainline kernel CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/kernel-build.yml"
+      - "README.md"
+      - "docs/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mainline-kernel-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kernel-smoke-build:
+    name: Build generic ARM64 kernel
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    env:
+      KERNEL_COMMIT: b8463e4b9111517f89da970d1e1145b851ce8d48
+      KERNEL_ARCHIVE: https://gitlab.postmarketos.org/sm6225-mainline/kernels/linux-v.7.2.1/-/archive/b8463e4b9111517f89da970d1e1145b851ce8d48/linux-v.7.2.1-b8463e4b9111517f89da970d1e1145b851ce8d48.tar.gz
+
+    steps:
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bc bison build-essential ca-certificates curl flex \
+            libelf-dev libssl-dev lld llvm clang make
+
+      - name: Fetch pinned mainline source
+        run: |
+          set -eux
+          mkdir -p kernel-src
+          curl --fail --location --retry 3 "$KERNEL_ARCHIVE" -o kernel.tar.gz
+          tar -xzf kernel.tar.gz --strip-components=1 -C kernel-src
+          test -f kernel-src/Makefile
+          printf '%s\\n' "$KERNEL_COMMIT" > kernel-src/SOURCE_COMMIT
+
+      - name: Configure generic ARM64 kernel
+        working-directory: kernel-src
+        run: |
+          set -eux
+          make ARCH=arm64 LLVM=1 O="$RUNNER_TEMP/kernel-out" defconfig
+          make ARCH=arm64 LLVM=1 O="$RUNNER_TEMP/kernel-out" olddefconfig
+
+      - name: Compile kernel image
+        working-directory: kernel-src
+        run: |
+          set -eux
+          make -j"$(nproc)" ARCH=arm64 LLVM=1 \
+            O="$RUNNER_TEMP/kernel-out" Image
+
+      - name: Collect smoke-build output
+        if: always()
+        run: |
+          mkdir -p dist
+          if [ -f "$RUNNER_TEMP/kernel-out/arch/arm64/boot/Image" ]; then
+            cp "$RUNNER_TEMP/kernel-out/arch/arm64/boot/Image" dist/
+          fi
+          if [ -f "$RUNNER_TEMP/kernel-out/.config" ]; then
+            cp "$RUNNER_TEMP/kernel-out/.config" dist/kernel.config
+          fi
+          if [ -f "$RUNNER_TEMP/kernel-out/include/config/kernel.release" ]; then
+            cp "$RUNNER_TEMP/kernel-out/include/config/kernel.release" dist/kernel.release
+          fi
+          printf '%s\\n' "$KERNEL_COMMIT" > dist/source-commit.txt
+          du -h dist/* 2>/dev/null || true
+
+      - name: Upload smoke-build artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spes-mainline-kernel-smoke-${{ github.run_number }}
+          path: dist/
+          if-no-files-found: warn
+          retention-days: 7
