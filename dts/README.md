@@ -45,8 +45,10 @@ Not implemented or not verified:
 - No claim that this candidate is safe to boot or flash.
 
 The independent same-model hardware report supports the framebuffer address,
-FocalTech FT5452 identification, GPIO98 AVDD, GPIO86 reset, GPIO80 IRQ and
-PM6125 L9 at 1.8 V, but does not replace the target phone's own live FDT/DTBO.
+FocalTech FT5452 identification, GPIO98 AVDD and PM6125 L9 at 1.8 V. The
+reset GPIO86 and likely IRQ GPIO80 are supported by downstream Spes/Khaje and
+Tapas references, but the conflicting vendor interrupt property remains
+unresolved. These sources do not replace the target phone's live FDT/DTBO.
 The original upstream skeleton was last updated in the
 referenced branch by commit `936aa708e5423d2d2ffba2ad5db7704d803782a0`, whose
 message adds temporary `clk_ignore_unused` and `pd_ignore_unused` boot flags.
