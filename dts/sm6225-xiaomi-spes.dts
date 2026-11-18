@@ -67,3 +67,15 @@
 		};
 	};
 };
+
+/*
+ * QUPv3 SE2 is the stock Spes touchscreen I2C bus. The SM6225 Mainline
+ * reference DTS pins this GENI I2C source clock to XO (19.2 MHz); without
+ * it, the controller may fail to probe with an unsupported SE clock.
+ * Keep the bus enabled, but do not add a client until the live FDT is checked.
+ */
+&i2c2 {
+	assigned-clocks = <&gcc GCC_QUPV3_WRAP0_S2_CLK>;
+	assigned-clock-rates = <19200000>;
+	status = "okay";
+};
