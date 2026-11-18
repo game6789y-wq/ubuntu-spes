@@ -10,6 +10,7 @@ This checklist is intentionally conservative. Mark an item complete only after a
 - [ ] Identify the exact originating postmarketOS pmaports commit for that config.
 - [ ] Inspect the current SM6225 Mainline DTS files and their include dependencies (still open; no confirmed `spes` Mainline DTS found).
 - [x] Inspect the downstream `spes.dtsi` / `khaje.dtsi` vendor reference; documented as non-portable source material in `mainline-dts-research.md`.
+- [x] Audit a public `spes/spesn` Android `BoardConfig.mk` (branch `sixteen-qpr2`); boot header v3, separate DTBO, and `khaje.dtb` build input recorded as Android build evidence only in `spes-boardconfig-audit.md`.
 - [ ] Compare the mainline DTS with stock `spes` DTBs from the same hardware variant.
 - [x] Build the pinned Mainline source with the SM6225 baseline config (run #13 succeeded; artifact `spes-mainline-kernel-smoke-13`).
 - [ ] Record all local patches with source links and rationale.
