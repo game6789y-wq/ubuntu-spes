@@ -114,14 +114,16 @@ commit `467185042fc7a8e2da4589767dd0d7b8ddc422e8`:
 
 ## Critical memory-map gate before any boot
 
-The older public SM6225 SoC DTSI reserves SMEM at 0x46000000/0x00200000,
-CDSP secure memory at 0x46200000/0x01e00000, splash at 0x5c000000, and DFPS
-at 0x5cf00000. An independent same-model Spes live-FDT report additionally
-records a modem carveout at 0x4ab00000/0x06900000 and WLAN MSA at
-0x51900000/0x00100000. Those two regions are not yet represented in this
-candidate because the exact firmware/revision must be checked first. The
-candidate is **not safe to boot** until the full memory and reserved-memory
-map is reconciled with the handset's live FDT and DTBO.
+The early public SM6225 SoC DTSI mirror reserves SMEM at
+0x46000000/0x00200000, CDSP secure memory at 0x46200000/0x01e00000, splash
+at 0x5c000000, and DFPS at 0x5cf00000. An independent same-model Spes live-FDT
+report additionally records a modem carveout at 0x4ab00000/0x06900000 and
+WLAN MSA at 0x51900000/0x00100000. The pinned postmarketOS source used by
+this project is newer and its Tapas DTS references a `pil_modem_mem` region
+in `sm6225.dtsi`; the next CI audit must confirm both modem and WLAN MSA ranges
+in that pinned file. The candidate inherits that SoC DTSI and must not add
+duplicate reservations. It is **not safe to boot** until the full memory and
+reserved-memory map is reconciled with the handset's live FDT and DTBO.
 
 The same external report records PM6125 USID0 and a power-on node at 0x800;
 this candidate enables the standard PM6125 power key only. It does not copy
