@@ -90,10 +90,12 @@
 
 /*
  * The SM6225 CAMSS node in the pinned SoC DTSI consumes PM6125 L4 and L18.
- * Values below are provisional electrical ranges cross-checked against the
- * upstream SM6115/PM6125 board DTS. They are compile-time declarations only:
- * verify the exact Spes PMIC rail programming from its live DTB/vendor data
- * before enabling camera or attempting a physical boot.
+ * Values below are provisional compile-time declarations, not validated
+ * Spes regulator settings. The Mainline Tapas reference uses L4=0.88 V and
+ * L18=1.232 V, while the downstream Spes khaje-idp.dtsi describes UFS L4A
+ * as 0.9 V and L18A as 1.8 V (but also constrains an L18A reference-clock
+ * consumer to 1.232 V). Resolve this discrepancy against the exact handset's
+ * live DTB/DTBO and PMIC revision before enabling UFS/CAMSS or booting.
  */
 &rpm_requests {
 	regulators-0 {
