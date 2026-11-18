@@ -43,9 +43,16 @@ Source files:
    confirmed for this phone.
 4. Maintain a separate `spes` device config fragment rather than modifying
    the shared SoC baseline for board-only settings.
-5. Before adding DTS files, compare the exact `spes.dtsi` vendor reference,
-   the live stock FDT/DTBO, and Mainline bindings. Translate one hardware
-   block at a time and record its source and validation status.
+5. Use the pinned tapas DTS only as an SM6225/PM6125 SoC/PMIC reference: its
+   header says it follows the spes board layout and shares most PMIC, charger,
+   Type-C and I2C hardware. Do not copy its memory map, panel, boot shim or
+   board-specific values.
+6. Reconcile the separate downstream spes tree's Max77729/SC8551 declarations
+   against the BQ25890/SM5602/No-PMI stack in the tapas reference; the sources
+   may reflect different revisions or complementary components.
+7. Use the independently tested FocalTech ID 54:52 as a candidate for the
+   upstream `focaltech,ft5452` driver (already enabled in the baseline config),
+   but resolve GPIO80 vs GPIO89 IRQ mapping from the live FDT before adding it.
 
 ## What we explicitly do not copy
 
@@ -83,9 +90,11 @@ vendor_boot, DTBO, and firmware metadata before choosing an image format.
       touch, USB-C, WLAN, and board revision.
 
 ### Phase C — minimal Mainline board description
-- [ ] Locate the exact SM6225 Mainline SoC DTSI and supported bindings in the
-      pinned kernel tree.
-- [ ] Create a minimal `spes` DTS only after the live board data is known.
+- [x] Locate the exact SM6225 Mainline SoC DTSI include through the pinned
+      tapas reference DTS (`sm6225.dtsi`) and identify PM6125 include.
+- [ ] Inspect the full pinned `sm6225.dtsi` and `pm6125.dtsi` contents and
+      compare inherited nodes against the exact spes stock DTB/DTBO.
+- [ ] Create a minimal `spes` DTS only after the live board data is known; do not rename the tapas DTS.
 - [ ] Compile the DTB and run `dtbs_check` where applicable.
 - [ ] Review reserved-memory and memory nodes against the real firmware.
 
@@ -107,3 +116,21 @@ The project remains at Phase A plus public-source research in Phase B.
 No board-specific Mainline DTS, boot image, Ubuntu root filesystem, or
 flashable release is ready. Do not treat the reference project's bootable
 artifacts or boot instructions as compatible with Redmi Note 11.
+
+
+## Additional source reconciliation (2026-11-18)
+
+- The pinned `Sype0/pmos-tapas` DTS includes `sm6225.dtsi` and
+  `pm6125.dtsi`; its header says its layout follows the Redmi Note 11
+  `spes` board and shares most PMIC, charger, Type-C and I2C buses.
+- The tapas DTS and config use BQ25890 + SM5602 + No-PMI charging policy.
+  A separate downstream spes DTS declares Max77729 and SC8551. Do not
+  assume these are mutually exclusive; resolve the firmware revision and
+  complete live DTB/DTBO before writing charging nodes.
+- Independent same-model hardware testing reports FocalTech ID `54:52`.
+  Mainline maps it to `focaltech,ft5452` (five touch points), and the
+  baseline config already builds `CONFIG_TOUCHSCREEN_EDT_FT5X06=y`.
+  The IRQ line is unresolved because the downstream DT node says GPIO89
+  while its separate irq-gpio property and the independent test say GPIO80.
+- The CI will compile the pinned tapas reference DTB as a syntax/source
+  integration check only. It will not publish that DTB as a spes image.

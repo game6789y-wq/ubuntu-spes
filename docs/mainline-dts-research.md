@@ -43,7 +43,7 @@ Reference: https://github.com/Evolution-X-Devices/device_xiaomi_spes/blob/bka/Bo
 ## Current conclusion
 
 - A reusable SM6225 Mainline kernel/configuration lead exists.
-- The exact `spes` Mainline DTS, its include dependencies, and its board-specific status still need direct inspection in the pinned kernel source.
+- The pinned Mainline source contains `arch/arm64/boot/dts/qcom/sm6225.dtsi`, as included by the related board reference DTS; the exact `spes` board file and its live-validated include dependencies are still not available here.
 - No `spes` DTS or boot shim has been authored in this repository yet.
 - Generic ARM64 CI success does not validate device support.
 
@@ -183,3 +183,35 @@ A direct inspection of the public downstream `spes.dtsi` and the tapas Mainline 
 
 
 A direct read of the inherited `khaje-idp.dtsi` now identifies the vendor FocalTech node at I2C 0x38 with GPIO98 AVDD, GPIO86 reset, GPIO80 IRQ and 1080x2400 coordinates. However, the vendor `focaltech,fts` compatible is not the same as the upstream FTS compatibles listed in the public binding; the exact controller variant and Mainline driver must be matched before creating a Mainline node. See [spes hardware reference matrix](spes-hardware-reference-matrix.md).
+
+
+## Reconciliation from the pinned Mainline reference project
+
+The pinned `Sype0/pmos-tapas` board file at commit
+`c5b6ab106f8277908a56b77a6a595d4ad0531dba` directly includes
+`sm6225.dtsi` and `pm6125.dtsi`. Its header explicitly says the board layout
+follows the Redmi Note 11 (`spes`) board and shares most of its PMIC, charger,
+Type-C controller and I2C buses. This is a stronger starting point for the
+SM6225 SoC and PM6125 PMIC DTSI than borrowing the unrelated upstream
+`sm6125.dtsi` file. **SM6125 and SM6225 are not interchangeable DTSI names.**
+
+The same reference project describes a BQ25890 charger, SM5602 fuel gauge,
+and No-PMI charging policy; its config calls this the `spes charger stack`.
+A separate downstream `spes.dtsi` tree declares Max77729 and SC8551 as well.
+Treat these sources as evidence of potentially complementary hardware or
+different vendor variants; do not assert a single final charger topology
+until the live DTB/DTBO is examined.
+
+The independent `AdyaGMD/ios-spes` hardware notes report FocalTech chip ID
+`54:52`, successful probe and working touch events. Current Mainline
+`edt-ft5x06` source maps this to compatible `focaltech,ft5452` with five
+touch points; the pinned SM6225 base config already enables
+`CONFIG_TOUCHSCREEN_EDT_FT5X06=y`. However, downstream sources disagree on
+the IRQ line (GPIO80 vs GPIO89), so the touch node is not yet ready to add.
+
+References:
+- https://github.com/Sype0/pmos-tapas/blob/c5b6ab106f8277908a56b77a6a595d4ad0531dba/dts/sm6225-xiaomi-tapas.dts
+- https://github.com/Sype0/pmos-tapas/blob/c5b6ab106f8277908a56b77a6a595d4ad0531dba/config/tapas.config
+- https://github.com/AdyaGMD/ios-spes/tree/bdc2682efd6398f61185eab398361b066bf93794
+- https://github.com/torvalds/linux/blob/master/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+- https://github.com/torvalds/linux/blob/master/drivers/input/touchscreen/edt-ft5x06.c

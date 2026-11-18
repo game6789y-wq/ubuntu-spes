@@ -31,7 +31,7 @@ Source URLs:
 | Secondary charger | `sc8551-charger@65`, compatible `sc,sc8551-standalone` | Vendor-only compatible in this file; check for a supported Mainline driver/binding before enabling |
 | SC8551 interrupt | TLMM GPIO84 | Candidate GPIO only; confirm polarity and pinctrl on the target |
 | SD card detect | `cd-gpios = <&tlmm 88 0>` under `sdhc_2` | Useful candidate for SD-card support; verify polarity and whether the handset variant has the slot |
-| Touchscreen | Included `khaje-idp.dtsi` declares FocalTech `focaltech,fts` at I2C `0x38` on `qupv3_se2_i2c`; AVDD GPIO98, reset GPIO86, IRQ GPIO80, max 10 contacts, 1080x2400 coordinates. `spes.dtsi` explicitly disables the alternative Synaptics TCM `0x20` and Novatek `0x62` nodes | Stronger candidate for spes than the disabled alternatives; upstream binding compatibility is not yet established |
+| Touchscreen | Vendor base declares FocalTech at I2C `0x38`; downstream values include AVDD GPIO98, reset GPIO86, IRQ GPIO80/89 conflict, and 1080x2400. Independent same-model test reads chip ID `54:52` | Strong candidate for Mainline `focaltech,ft5452`; Mainline driver supports max 5 points. Resolve IRQ and power mapping from live FDT before writing node |
 | One-wire accessory | GPIO108 vendor node | Vendor-specific feature; out of initial bring-up scope |
 | Charger policy | `qcom,nopmi-chg` node with board thermal/charge policy | Vendor-specific binding and policy; do not copy into Mainline without a matching upstream binding/driver |
 
@@ -41,12 +41,21 @@ file as a complete board description.
 
 ## Cross-check against the tapas Mainline reference
 
-The inspected `sm6225-xiaomi-tapas.dts` uses a different charger arrangement:
-a `ti,bq25890` at I2C address `0x6a` and an `sm,sm5602` fuel gauge at
-`0x71`, plus a `qcom,nopmi-chg` policy node. This does **not** match the
-public downstream spes override, which declares Max77729 and SC8551 devices.
-Therefore do not copy the tapas charger/fuel-gauge nodes, addresses, current
-limits, JEITA values, or GPIO assignments into a spes DTS.
+The pinned `Sype0/pmos-tapas` README explicitly says the tapas board DTS is
+laid out like the Redmi Note 11 (`spes`) board and shares most of its PMIC,
+charger, Type-C controller and I2C buses. Its DTS describes BQ25890 at I2C
+0x6a and SM5602 at 0x71, while its config calls this the "spes charger stack"
+(SM5602 fuel gauge plus No-PMI policy). This is strong evidence that these
+parts are relevant to the spes bring-up.
+
+However, the separate downstream `Jabiyeff/kernel_xiaomi_sm6225` `spes.dtsi`
+also declares Max77729 (with nested charger/fuel-gauge functions) and SC8551
+at I2C 0x65. The public sources therefore do not yet establish whether these
+are additional fast-charge/Type-C components, a different firmware/board
+revision, or an alternate vendor implementation. Do not treat this as a
+simple mutually-exclusive topology. Do not copy any charger thresholds,
+interrupts, or regulator settings until the exact live DTB/DTBO and hardware
+revision are reconciled.
 
 The tapas DTS also contains a hard-coded memory map, framebuffer address,
 ramoops reservation, panel details, and board IDs. Those values are specific
@@ -64,7 +73,7 @@ matches this Redmi Note 11.
 | SoC / CPU | SM6225 / Khaje downstream source inspected | Match nodes to the exact pinned Mainline `sm6225.dtsi` and supported bindings |
 | PMIC / regulators | Inherited from `khaje-idp.dtsi`; not fully reconciled here | Resolve includes and compare to stock FDT/DTBO |
 | USB-C / Type-C | Max77729 public vendor declaration | Check upstream driver/binding and IRQ/pinctrl mapping |
-| Charging | Max77729 + SC8551 in spes vendor file; different from tapas reference | Keep disabled in first minimal DTS until driver and battery safety are verified |
+| Charging | Tapas reference (explicitly described as sharing most of spes charger hardware) uses BQ25890 + SM5602 + No-PMI policy; another downstream spes.dtsi declares Max77729 + SC8551 | Source topology is unresolved across trees/revisions; omit charger nodes from first boot DTS |
 | UFS | Android device uses UFS 2.2 per device tree documentation | Confirm exact Mainline UFS controller/PHY nodes and live firmware resources |
 | SD card | Vendor SDHC2 detect GPIO88 | Verify actual slot population and pin polarity |
 | Display | No exact active panel identified from this board override | Identify panel from live DTB/DTBO and panel compatible before enabling DSI |
@@ -87,9 +96,11 @@ matches this Redmi Note 11.
 
 ## Current conclusion
 
-The public sources provide actionable hardware leads, but also expose a
-critical mismatch between the charger topology in the spes vendor source and
-the tapas Mainline reference. This is exactly why a tapas DTS cannot be
+The public sources provide actionable hardware leads, but the charger/Type-C
+topology differs between available downstream trees and the tapas Mainline
+reference; the sources may describe different revisions or complementary
+components. The independent touch test strongly points to FT5452, but the
+vendor interrupt declarations conflict. This is why a tapas DTS cannot be
 renamed into a spes DTS. No board DTS has been created by this research step,
 and no image has been flashed or released.
 
@@ -109,3 +120,25 @@ References:
 - https://lists.openwall.net/linux-kernel/2023/03/12/96
 - https://lkml.iu.edu/2303.1/05772.html
 - https://github.com/AdyaGMD/ios-spes
+
+
+## Touchscreen: reconciled Mainline candidate
+
+The independent `AdyaGMD/ios-spes` hardware report for Redmi Note 11 records
+FocalTech ID `54:52`, a successful probe, and working down/up touch events.
+The upstream `edt-ft5x06` driver maps this device to compatible
+`focaltech,ft5452` and configures a maximum of five touch points. The current
+upstream binding lists `focaltech,ft5452` (not the older proposed
+`focaltech,fts5452`) and the driver source confirms the compatible match.
+
+The pinned SM6225 baseline config already has
+`CONFIG_TOUCHSCREEN_EDT_FT5X06=y`, so no extra driver config patch is needed.
+The downstream vendor source is internally inconsistent about the interrupt:
+the touchscreen node uses GPIO89 in `interrupts`, but the vendor
+`focaltech,irq-gpio` property and independent hardware report point to
+GPIO80. The I/O rail is PM6125 L9 at 1.8 V; AVDD is GPIO98 and reset is GPIO86.
+Do not author the Mainline touchscreen node until the live DTB resolves the
+IRQ mapping and the Mainline supply/pinctrl representation is checked.
+
+Pinned independent reference:
+https://github.com/AdyaGMD/ios-spes/tree/bdc2682efd6398f61185eab398361b066bf93794

@@ -34,6 +34,7 @@ Different regional variants and board revisions may require different device-tre
 
 - [Mainline DTS research for SM6225 / spes](docs/mainline-dts-research.md)
 - [spes hardware reference matrix](docs/spes-hardware-reference-matrix.md)
+- [Mainline DTS and touchscreen source reconciliation](docs/mainline-dts-research.md)
 - [SM6225 Mainline implementation and porting plan](docs/sm6225-mainline-porting-plan.md)
 - [spes Android BoardConfig and DTB audit (reference only)](docs/spes-boardconfig-audit.md)
 - [Additional SM6225 reference ports](docs/sm6225-reference-ports.md)
@@ -41,7 +42,7 @@ Different regional variants and board revisions may require different device-tre
 
 ## Build
 
-The GitHub Actions workflow compiles the pinned SM6225 Mainline source using a pinned SM6225 postmarketOS baseline configuration. It does not yet compile a verified `spes` Mainline DTB or produce a device-bootable image.
+The GitHub Actions workflow compiles the pinned SM6225 Mainline source using the postmarketOS baseline configuration and checks the built-in FocalTech driver. It also compiles the pinned `tapas` reference DTB to validate the SM6225/PM6125 DTSI path; that is a reference-only compile test, not a `spes` DTB. It does not produce a device-bootable image.
 
 1. Open **Actions** in this repository.
 2. Select **Mainline kernel CI**.

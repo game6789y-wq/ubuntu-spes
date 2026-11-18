@@ -10,8 +10,11 @@ This checklist is intentionally conservative. Mark an item complete only after a
 - [ ] Identify the exact originating postmarketOS pmaports commit for that config.
 - [ ] Inspect the current SM6225 Mainline DTS files and their include dependencies (still open; no confirmed `spes` Mainline DTS found).
 - [x] Inspect the downstream `spes.dtsi` / `khaje.dtsi` vendor reference; documented as non-portable source material in `mainline-dts-research.md`.
-- [x] Compare board-level charger/USB-C/SD-card declarations in downstream `spes.dtsi` against the tapas Mainline reference; record mismatches and candidate GPIOs in `spes-hardware-reference-matrix.md`.
-- [x] Trace the inherited FocalTech touchscreen node and compare its vendor compatible against public Mainline binding compatibles; exact IC/driver match remains pending.
+- [x] Reconcile charger/USB-C clues across the downstream spes tree and tapas reference; record source disagreement and avoid selecting a topology before live DTB/DTBO inspection.
+- [x] Trace the inherited FocalTech touchscreen node; independent same-model hardware notes report ID 54:52, matching Mainline `focaltech,ft5452`; IRQ mapping remains unresolved (GPIO80 vs GPIO89).
+- [x] Confirm `CONFIG_TOUCHSCREEN_EDT_FT5X06=y` is already built into the pinned SM6225 baseline config.
+- [x] Inspect the pinned tapas reference DTS: it includes the SM6225 and PM6125 SoC/PMIC DTSI files and states it follows the spes board layout; do not copy its board-specific values.
+- [ ] Add a CI-only compile test for the pinned tapas reference DTB; this is not a spes DTB or a bootable artifact.
 - [x] Audit a public `spes/spesn` Android `BoardConfig.mk` (branch `sixteen-qpr2`); boot header v3, separate DTBO, and `khaje.dtb` build input recorded as Android build evidence only in `spes-boardconfig-audit.md`.
 - [x] Fetch and inspect the prebuilt `dtb/khaje.dtb` FDT header and trace its generic downstream `khaje.dts` / `khaje.dtsi` source; not a board-specific Mainline DTS.
 - [ ] Decode and inventory the prebuilt `dtbo.img` and identify each overlay (GitHub text endpoint exposed only the blob SHA, not binary bytes). A read-only parser is now available at `scripts/inspect_android_dt_table.py` for use once the binary is obtained.
