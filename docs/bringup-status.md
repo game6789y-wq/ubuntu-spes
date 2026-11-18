@@ -6,8 +6,10 @@ This checklist is intentionally conservative. Mark an item complete only after a
 
 - [ ] Confirm the pinned kernel archive is reachable and matches the recorded commit.
 - [x] Complete the generic ARM64 smoke build in GitHub Actions (run #4 succeeded; generic smoke build only).
-- [ ] Locate and pin the exact `spes` SM6225 kernel package/config revision used by postmarketOS (Mainline lead identified; exact package source still to verify).
-- [ ] Inspect the current SM6225 mainline DTS files and their include dependencies (research lead documented in `mainline-dts-research.md`; direct source inspection remains open).
+- [x] Pin the SM6225 baseline config snapshot used by the pmos-tapas project (source commit `c5b6ab106f8277908a56b77a6a595d4ad0531dba`).
+- [ ] Identify the exact originating postmarketOS pmaports commit for that config.
+- [ ] Inspect the current SM6225 Mainline DTS files and their include dependencies (still open; no confirmed `spes` Mainline DTS found).
+- [x] Inspect the downstream `spes.dtsi` / `khaje.dtsi` vendor reference; documented as non-portable source material in `mainline-dts-research.md`.
 - [ ] Compare the mainline DTS with stock `spes` DTBs from the same hardware variant.
 - [ ] Record all local patches with source links and rationale.
 
@@ -49,3 +51,8 @@ No flashable image or GitHub Release should be published until the boot chain, d
 An Android device-tree build configuration for `spes` references boot image header version 3. This is useful evidence, but it is not a substitute for reading the actual boot/vendor_boot images and bootloader behavior from the target phone. Do not copy the `tapas` v4 shim approach without that verification.
 
 Reference: [Evolution-X device_xiaomi_spes BoardConfig.mk](https://github.com/Evolution-X-Devices/device_xiaomi_spes/blob/bka/BoardConfig.mk).
+
+
+## External hardware evidence (not locally verified)
+
+A third-party `spes` bring-up report describes boot/vendor_boot header v3 and a vendor_boot DTB plus DTBO overlays for one firmware build. Use this only to guide read-only inspection on the target handset. The local boot chain, DTB selection, memory map, and RAM variant remain unverified.
