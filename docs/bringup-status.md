@@ -4,13 +4,14 @@ This checklist is intentionally conservative. Mark an item complete only after a
 
 ## Source and build
 
-- [ ] Confirm the pinned kernel archive is reachable and matches the recorded commit.
+- [x] Confirm the pinned kernel archive is reachable and matches the recorded commit (run #13 fetched the pinned archive and compiled it).
 - [x] Complete the generic ARM64 smoke build in GitHub Actions (run #4 succeeded; generic smoke build only).
 - [x] Pin the SM6225 baseline config snapshot used by the pmos-tapas project (source commit `c5b6ab106f8277908a56b77a6a595d4ad0531dba`).
 - [ ] Identify the exact originating postmarketOS pmaports commit for that config.
 - [ ] Inspect the current SM6225 Mainline DTS files and their include dependencies (still open; no confirmed `spes` Mainline DTS found).
 - [x] Inspect the downstream `spes.dtsi` / `khaje.dtsi` vendor reference; documented as non-portable source material in `mainline-dts-research.md`.
 - [ ] Compare the mainline DTS with stock `spes` DTBs from the same hardware variant.
+- [x] Build the pinned Mainline source with the SM6225 baseline config (run #13 succeeded; artifact `spes-mainline-kernel-smoke-13`).
 - [ ] Record all local patches with source links and rationale.
 
 ## Device-specific validation
