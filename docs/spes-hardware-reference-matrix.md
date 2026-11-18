@@ -31,7 +31,7 @@ Source URLs:
 | Secondary charger | `sc8551-charger@65`, compatible `sc,sc8551-standalone` | Vendor-only compatible in this file; check for a supported Mainline driver/binding before enabling |
 | SC8551 interrupt | TLMM GPIO84 | Candidate GPIO only; confirm polarity and pinctrl on the target |
 | SD card detect | `cd-gpios = <&tlmm 88 0>` under `sdhc_2` | Useful candidate for SD-card support; verify polarity and whether the handset variant has the slot |
-| Touchscreen | Included `khaje-idp.dtsi` declares FocalTech `focaltech,fts` at I2C `0x38` on `qupv3_se2_i2c`; AVDD GPIO98, reset GPIO86, IRQ GPIO80, max 10 contacts, 1080x2400 coordinates. `spes.dtsi` explicitly disables the alternative Synaptics TCM `0x20` and Novatek `0x62` nodes | Stronger candidate for spes than the disabled alternatives; still vendor-only and must be checked against live DTB/DTBO and Mainline driver/binding |
+| Touchscreen | Included `khaje-idp.dtsi` declares FocalTech `focaltech,fts` at I2C `0x38` on `qupv3_se2_i2c`; AVDD GPIO98, reset GPIO86, IRQ GPIO80, max 10 contacts, 1080x2400 coordinates. `spes.dtsi` explicitly disables the alternative Synaptics TCM `0x20` and Novatek `0x62` nodes | Stronger candidate for spes than the disabled alternatives; upstream binding compatibility is not yet established |
 | One-wire accessory | GPIO108 vendor node | Vendor-specific feature; out of initial bring-up scope |
 | Charger policy | `qcom,nopmi-chg` node with board thermal/charge policy | Vendor-specific binding and policy; do not copy into Mainline without a matching upstream binding/driver |
 
@@ -99,3 +99,13 @@ and no image has been flashed or released.
 The included downstream `khaje-idp.dtsi` was inspected directly. It declares a FocalTech touchscreen (`compatible = "focaltech,fts"`) on `qupv3_se2_i2c` at I2C address `0x38`, with AVDD GPIO98, reset GPIO86, IRQ GPIO80, up to 10 contacts, and display coordinates 1080x2400. The `spes.dtsi` override disables the alternative Synaptics TCM (0x20) and Novatek (0x62) nodes. This matches the independent `ios-spes` report of FocalTech at 0x38 and AVDD GPIO98, but remains downstream evidence; verify the exact handset's live DTB/DTBO and check the Mainline driver/binding before creating a node.
 
 The independent report also describes one firmware build with boot/vendor_boot header v3, vendor_boot DTB index 8, and DTBO entries 6 and 15. Those are inspection leads only, not confirmed values for every spes variant.
+
+
+### Mainline FocalTech compatibility warning
+
+The downstream tree uses `compatible = "focaltech,fts"` and a vendor `ft3418_i2c` driver. The upstream FocalTech FTS binding proposal/current family documentation lists specific compatibles such as `focaltech,fts5452` and `focaltech,fts8719`, not the generic vendor string. This means the node cannot simply be copied unchanged into a schema-valid Mainline DTS. The independent `ios-spes` report mentions a FocalTech controller ID `54:52`; do not infer that this proves the exact silicon model or upstream driver match. Identify the controller variant from its firmware/register ID and confirm the exact driver supported by the pinned kernel before adding the node.
+
+References:
+- https://lists.openwall.net/linux-kernel/2023/03/12/96
+- https://lkml.iu.edu/2303.1/05772.html
+- https://github.com/AdyaGMD/ios-spes
