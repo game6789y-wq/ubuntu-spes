@@ -11,10 +11,10 @@
  * MSM/board IDs, framebuffer address and ramoops range must be reconciled
  * with the exact handset firmware/live FDT before any boot attempt.
  *
- * Copyright (c) 2026, Rayan Marzouk
+ * Copyright (c) 2026, Rayan Marzouk <rayanmarzouk743@gmail.com>
  */
 
- /dts-v1/;
+/dts-v1/;
 #include "sm6225.dtsi"
 
 / {
