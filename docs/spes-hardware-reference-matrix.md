@@ -142,3 +142,35 @@ IRQ mapping and the Mainline supply/pinctrl representation is checked.
 
 Pinned independent reference:
 https://github.com/AdyaGMD/ios-spes/tree/bdc2682efd6398f61185eab398361b066bf93794
+
+## UFS / PM6125 rail cross-check (2026-11-18)
+
+The downstream Spes source `Jabiyeff/kernel_xiaomi_sm6225` at commit
+`6c2b3e7528a0778cd80c95eabb490746b5422f8c`, file
+`arch/arm64/boot/dts/vendor/qcom/khaje-idp.dtsi`, assigns:
+
+- `ufsphy_mem.vdda-phy-supply = <&L4A>` with a source comment of 0.9 V.
+- `ufsphy_mem.vdda-pll-supply = <&L18A>` with a source comment of 1.8 V.
+- `ufshc_mem.qcom,vddp-ref-clk-supply = <&L18A>` with min/max 1.232 V.
+
+The Mainline-oriented Tapas reference DTS instead defines PM6125 L4 at
+0.88 V and L18 at 1.232 V, and uses L4 for UFS PHY and L18 for UFS PLL.
+This is a material source discrepancy, not a value to resolve by choosing
+one tree arbitrarily. The downstream Spes source may describe a different
+regulator mode, firmware generation, or board configuration; its 1.8 V
+comment also coexists with a 1.232 V reference-clock constraint on L18A.
+
+Consequences for this port:
+
+- Keep the current Mainline L4/L18 values explicitly provisional.
+- Do not enable UFS, CAMSS, or other consumers on the strength of these
+  guessed ranges.
+- Resolve PM6125 regulator IDs, voltage programming, and consumers from the
+  exact target handset's live stock DTB/DTBO plus PMIC/board revision.
+- A successful DTS compile only checks phandle and syntax integrity; it does
+  not validate regulator electrical safety.
+
+Source:
+https://github.com/Jabiyeff/kernel_xiaomi_sm6225/blob/6c2b3e7528a0778cd80c95eabb490746b5422f8c/arch/arm64/boot/dts/vendor/qcom/khaje-idp.dtsi
+Reference:
+https://github.com/Sype0/pmos-tapas/blob/main/dts/sm6225-xiaomi-tapas.dts
