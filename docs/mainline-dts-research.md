@@ -180,3 +180,6 @@ Reference source: https://github.com/Sype0/pmos-tapas
 ## Board-level hardware reference matrix
 
 A direct inspection of the public downstream `spes.dtsi` and the tapas Mainline reference DTS exposed a significant charger-topology mismatch: the downstream spes file declares Max77729 at I2C 0x66 and SC8551 at 0x65, while the tapas reference declares BQ25890 at 0x6a and SM5602 at 0x71. Do not copy the tapas charging nodes or policy into spes. The spes source also declares candidate GPIOs 105, 84 and 88 for Max77729 interrupt, SC8551 interrupt and SD-card detect respectively; these remain unverified against the live target FDT. Full comparison and next steps are recorded in [spes hardware reference matrix](spes-hardware-reference-matrix.md).
+
+
+A direct read of the inherited `khaje-idp.dtsi` now identifies the vendor FocalTech node at I2C 0x38 with GPIO98 AVDD, GPIO86 reset, GPIO80 IRQ and 1080x2400 coordinates. However, the vendor `focaltech,fts` compatible is not the same as the upstream FTS compatibles listed in the public binding; the exact controller variant and Mainline driver must be matched before creating a Mainline node. See [spes hardware reference matrix](spes-hardware-reference-matrix.md).
