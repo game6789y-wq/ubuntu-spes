@@ -11,7 +11,8 @@ The goal is to bring up a mainline Linux kernel first, then add device-specific 
 | Area | Status |
 |---|---|
 | Repository and CI scaffold | Added |
-| Mainline SM6225 kernel source validation | Pending CI |
+| Generic ARM64 kernel smoke build | Passed (GitHub Actions run #4) |
+| Device-specific SM6225 kernel validation | Pending source/config inspection |
 | `spes` device tree validation | Not started |
 | Boot chain / boot image format | Not verified |
 | Display, touch, USB, storage, Wi-Fi, audio | Not tested |
@@ -28,6 +29,11 @@ A successful CI build only proves that the selected kernel source compiles. It d
 - GPU: Qualcomm Adreno 610
 
 Different regional variants and board revisions may require different device-tree data. Do not assume that a device tree for Redmi Note 12 4G (`tapas`) is interchangeable with `spes`.
+
+## Research notes
+
+- [Mainline DTS research for SM6225 / spes](docs/mainline-dts-research.md)
+- [Bring-up checklist and release gate](docs/bringup-status.md)
 
 ## Build
 
