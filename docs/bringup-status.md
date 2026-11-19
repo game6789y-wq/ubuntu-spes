@@ -69,20 +69,21 @@ Reference: [Evolution-X device_xiaomi_spes BoardConfig.mk](https://github.com/Ev
 A third-party `spes` bring-up report describes boot/vendor_boot header v3 and a vendor_boot DTB plus DTBO overlays for one firmware build. Use this only to guide read-only inspection on the target handset. The local boot chain, DTB selection, memory map, and RAM variant remain unverified.
 
 
-## Latest verified CI result (2026-11-18)
+## Latest verified CI result (2026-11-19)
 
-- Workflow run #48: [Mainline kernel CI](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44272951114)
-- Commit: `7f5953a8cd65bef707b4e20be21add9caf476936`
+- Workflow run #52: [Mainline kernel CI](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44513655587)
+- Commit: `19995f4a4ae39f2fa7cfbd4a96f3e080ca7084e2`
 - Overall result: **success**.
-- Job: `Build SM6225 kernel and Spes DTS candidate` — success.
+- Job: `Build SM6225 kernel and Spes DTS candidate` — success; all 12 build and artifact steps passed.
 - Successful steps include kernel Image compilation, upstream FT5452/config checks, pinned Tapas reference DTB compilation, reserved-memory source audit, and compile-only `sm6225-xiaomi-spes.dtb` candidate compilation.
-- Artifact: `spes-mainline-kernel-smoke-48` (18,338,041 bytes; expires 2026-11-25). The artifact does not include the Spes DTB, initramfs, or a boot image.
-- This is the first verified CI pass for the current Spes DTS candidate after the missing `pm6125_l4` / `pm6125_l18` phandle error. It confirms compile-time integration only, not correct regulator voltages, correct live DTB hand-off, or physical boot.
+- Artifact: `spes-mainline-kernel-smoke-52` (18,353,579 bytes; expires 2026-11-26). The workflow collects the kernel Image, Spes DTB candidate, source DTS, kernel config/release metadata, source commit, README warning, and SHA256SUMS.
+- The Spes DTB is included for offline inspection only. This compile result does not validate regulator voltages, live DTB/DTBO matching, memory map, bootloader hand-off, or physical boot. No initramfs, verified boot image, firmware bundle, or tested recovery procedure is included. Do not flash the artifact.
 
 ## Next blocking evidence
 
-1. Obtain the exact handset's stock `vendor_boot`, `dtbo`, and live FDT read-only, then decode and inventory the DTB/overlays.
+1. Obtain the exact handset's stock live FDT and DTBO read-only, then decode and inventory the DTB/overlays.
 2. Confirm PM6125 rail IDs/voltages from that exact firmware and board revision. Public Spes downstream and Tapas reference sources disagree on L4/L18 use/voltage; keep the current declarations provisional.
 3. Confirm memory/reserved-memory and framebuffer/ramoops addresses from the live FDT before enabling those nodes.
 4. Only after the above, enable UFS and display/touch consumers and add `dtbs_check`/binding validation.
-5. Verify the boot header and DTB hand-off before creating any non-persistent test image.
+5. Verify boot/vendor_boot header, partition layout, DTB hand-off, and a safe non-persistent test-boot method before creating any boot image.
+6. Once device evidence is collected, reconcile the candidate DTS against the live handset tree and add tests for any corrected hardware-specific values.
