@@ -150,6 +150,11 @@ jobs:
           if [ -f "$RUNNER_TEMP/kernel-out/arch/arm64/boot/Image" ]; then
             cp "$RUNNER_TEMP/kernel-out/arch/arm64/boot/Image" dist/
           fi
+          SPES_DTB="$RUNNER_TEMP/kernel-out/arch/arm64/boot/dts/qcom/sm6225-xiaomi-spes.dtb"
+          if [ -s "$SPES_DTB" ]; then
+            cp "$SPES_DTB" dist/sm6225-xiaomi-spes-candidate.dtb
+            cp "$GITHUB_WORKSPACE/dts/sm6225-xiaomi-spes.dts" dist/
+          fi
           if [ -f "$RUNNER_TEMP/kernel-out/.config" ]; then
             cp "$RUNNER_TEMP/kernel-out/.config" dist/kernel.config
           fi
@@ -159,11 +164,16 @@ jobs:
           echo "$KERNEL_COMMIT" > dist/source-commit.txt
           cat > dist/README.txt <<'EOF'
           COMPILE-ONLY SMOKE ARTIFACT — NOT DEVICE-BOOTABLE.
-          The Image is a kernel build test. The Spes DTB candidate is compiled
-          in CI but is not included in this artifact. No initramfs, verified
-          boot image, firmware bundle, or recovery procedure is included.
-          Do not flash this artifact to the phone.
+          The Image is a kernel build test, and the Spes DTB is an unvalidated
+          compile candidate included only for offline inspection. It has not
+          been checked against the target handset's live DTB/DTBO, PMIC rails,
+          memory map, bootloader hand-off, or hardware revision.
+          No initramfs, verified boot image, firmware bundle, or recovery
+          procedure is included. Do not flash any file from this artifact.
           EOF
+          if command -v sha256sum >/dev/null 2>&1; then
+            (cd dist && sha256sum * > SHA256SUMS)
+          fi
           du -h dist/* 2>/dev/null || true
 
       - name: Upload smoke-build artifact
