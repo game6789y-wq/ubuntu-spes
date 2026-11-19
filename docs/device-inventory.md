@@ -38,7 +38,7 @@ phone with root access (for example, KernelSU). No PC is required.
    approve the root request when prompted:
 
    ```sh
-   su -c 'sh ~/ubuntu-spes/scripts/collect-spes-device-info.sh /sdcard/Download/spes-device-info'
+   su -c "sh $HOME/ubuntu-spes/scripts/collect-spes-device-info.sh /sdcard/Download/spes-device-info"
    ```
 
 4. When it finishes, open the phone's Downloads folder and inspect the
