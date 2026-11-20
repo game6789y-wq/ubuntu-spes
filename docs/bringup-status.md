@@ -63,35 +63,35 @@ An Android device-tree build configuration for `spes` references boot image head
 
 Reference: [Evolution-X device_xiaomi_spes BoardConfig.mk](https://github.com/Evolution-X-Devices/device_xiaomi_spes/blob/bka/BoardConfig.mk).
 
-
 ## External hardware evidence (not locally verified)
 
 A third-party `spes` bring-up report describes boot/vendor_boot header v3 and a vendor_boot DTB plus DTBO overlays for one firmware build. Use this only to guide read-only inspection on the target handset. The local boot chain, DTB selection, memory map, and RAM variant remain unverified.
 
+## Latest verified CI result (2026-11-21)
 
-## Latest verified CI result (2026-11-19)
-
-- Workflow run #52: [Mainline kernel CI](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44513655587)
-- Commit: `19995f4a4ae39f2fa7cfbd4a96f3e080ca7084e2`
+- Workflow run #57: [Mainline kernel CI](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44726549638)
+- Commit: `9853c7265fe61856eaa0f17b7c311bfa5dabf3d8`
 - Overall result: **success**.
-- Job: `Build SM6225 kernel and Spes DTS candidate` — success; all 12 build and artifact steps passed.
-- Successful steps include kernel Image compilation, upstream FT5452/config checks, pinned Tapas reference DTB compilation, reserved-memory source audit, and compile-only `sm6225-xiaomi-spes.dtb` candidate compilation.
-- Artifact: `spes-mainline-kernel-smoke-52` (18,353,579 bytes; expires 2026-11-26). The workflow collects the kernel Image, Spes DTB candidate, source DTS, kernel config/release metadata, source commit, README warning, and SHA256SUMS.
-- The Spes DTB is included for offline inspection only. This compile result does not validate regulator voltages, live DTB/DTBO matching, memory map, bootloader hand-off, or physical boot. No initramfs, verified boot image, firmware bundle, or tested recovery procedure is included. Do not flash the artifact.
+- Job: `Build SM6225 kernel and Spes DTS candidate` — success; all build, compile, advisory validation, and artifact steps passed.
+- Successful steps include pinned kernel fetch, ARM64 Image compilation, FT5452/config checks, pinned Tapas reference DTB compilation, reserved-memory source audit, compile-only `sm6225-xiaomi-spes.dtb`, and advisory `dt-validate`.
+- Artifact: [`spes-mainline-kernel-smoke-57`](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44726549638/artifacts/14625732268) (18,355,680 bytes; expires 2026-11-27). Digest: `sha256:d41c17c5930eacf01b0481f531286576c55ffdfea6a65978eafc7728ca4f6089`.
+- The artifact contains the kernel `Image`, Spes DTB candidate, source DTS, config/release metadata, schema-validation log and exit status, source commit, warning README, and SHA256SUMS.
+- The advisory validation command exited with status `0`, so the CI step passed. The log still reports multiple schema mismatches in inherited SM6225/PM6125 nodes (for example pinctrl, USB PHY clocks, PMIC child-node naming, SDHCI/UFS clock lists, SMMU, IMEM, Wi-Fi, CCI, and Venus). These are not automatically proven to be Spes-specific defects and must not be “fixed” by guessing.
+- The Spes DTB remains for offline inspection only. This result does not validate regulator voltages, live DTB/DTBO matching, memory map, bootloader hand-off, hardware revision, or physical boot. No initramfs, verified boot image, firmware bundle, or tested recovery procedure is included. Do not flash the artifact.
 
 ## Next blocking evidence
 
 1. Obtain the exact handset's stock live FDT and DTBO read-only, then decode and inventory the DTB/overlays.
 2. Confirm PM6125 rail IDs/voltages from that exact firmware and board revision. Public Spes downstream and Tapas reference sources disagree on L4/L18 use/voltage; keep the current declarations provisional.
 3. Confirm memory/reserved-memory and framebuffer/ramoops addresses from the live FDT before enabling those nodes.
-4. Only after the above, enable UFS and display/touch consumers and add `dtbs_check`/binding validation.
-5. Verify boot/vendor_boot header, partition layout, DTB hand-off, and a safe non-persistent test-boot method before creating any boot image.
-6. Once device evidence is collected, reconcile the candidate DTS against the live handset tree and add tests for any corrected hardware-specific values.
-
+4. Separate inherited schema noise from Spes-specific schema issues by validating a minimized/diffed candidate tree and, where appropriate, the exact pinned kernel binding set.
+5. Only after the above, enable UFS and display/touch consumers and add targeted checks for corrected hardware-specific values.
+6. Verify boot/vendor_boot header, partition layout, DTB hand-off, and a safe non-persistent test-boot method before creating any boot image.
+7. Once device evidence is collected, reconcile the candidate DTS against the live handset tree and add tests for any corrected hardware-specific values.
 
 ## CI workflow update (2026-11-20)
 
 - Workflow run #56: [Mainline kernel CI](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44523414143) completed successfully for commit `3a8e07ce2ebb32c37e53d4dc05326361255231bb`. This verifies the revised path filters and existing compile-only checks.
-- Commit `9853c7265fe61856eaa0f17b7c311bfa5dabf3d8` adds an advisory `dt-validate` pass against the pinned kernel's Devicetree bindings. The check is deliberately non-blocking while the candidate DTS is still being reconciled with the target handset; its log and exit status are collected in the CI artifact when available.
-- Run #57 is queued: [Mainline kernel CI](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44726549638). Do not mark schema validation complete until this run finishes and its log has been reviewed.
+- Commit `9853c7265fe61856eaa0f17b7c311bfa5dabf3d8` adds an advisory `dt-validate` pass against the pinned kernel's Devicetree bindings. The check is deliberately non-blocking while the candidate DTS is still being reconciled with the target handset; its log and exit status are collected in the CI artifact.
+- Run #57 finished successfully; schema warnings remain advisory and were documented above.
 - This is a schema-validation experiment, not a replacement for the kernel's full `dt_binding_check` / `dtbs_check` workflow and not evidence of electrical safety or device bootability.
