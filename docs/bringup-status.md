@@ -87,3 +87,11 @@ A third-party `spes` bring-up report describes boot/vendor_boot header v3 and a 
 4. Only after the above, enable UFS and display/touch consumers and add `dtbs_check`/binding validation.
 5. Verify boot/vendor_boot header, partition layout, DTB hand-off, and a safe non-persistent test-boot method before creating any boot image.
 6. Once device evidence is collected, reconcile the candidate DTS against the live handset tree and add tests for any corrected hardware-specific values.
+
+
+## CI workflow update (2026-11-20)
+
+- Workflow run #56: [Mainline kernel CI](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44523414143) completed successfully for commit `3a8e07ce2ebb32c37e53d4dc05326361255231bb`. This verifies the revised path filters and existing compile-only checks.
+- Commit `9853c7265fe61856eaa0f17b7c311bfa5dabf3d8` adds an advisory `dt-validate` pass against the pinned kernel's Devicetree bindings. The check is deliberately non-blocking while the candidate DTS is still being reconciled with the target handset; its log and exit status are collected in the CI artifact when available.
+- Run #57 is queued: [Mainline kernel CI](https://github.com/game6789y-wq/ubuntu-spes/actions/runs/44726549638). Do not mark schema validation complete until this run finishes and its log has been reviewed.
+- This is a schema-validation experiment, not a replacement for the kernel's full `dt_binding_check` / `dtbs_check` workflow and not evidence of electrical safety or device bootability.
